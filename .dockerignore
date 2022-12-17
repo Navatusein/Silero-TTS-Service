@@ -1,0 +1,7 @@
+*.md
+LICENSE
+Makefile
+model.pt
+/ha_config
+/audios
+/data
