@@ -98,6 +98,6 @@ async def process(request: Request, settings: Settings = Depends(get_settings)):
 
 @router.get('/test')
 async def process():
-    return get_tts_file('Тест', 'xenia', 48000)
+    return normalize('<speak><p>Тест 12 <d>яблоко</d></p></speak>')
 
 

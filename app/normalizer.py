@@ -11,7 +11,7 @@ morph = MorphAnalyzer(lang=settings.language)
 
 
 def normalize_number(text: str) -> str:
-    tag_empty_text = sub('<[^>]*>', '', text)
+    tag_empty_text = sub('<[^>]*[^d]>', '', text)
     numbers = findall(r'\d+(?:\.\d+)?(?:\s<d>.*?</d>)*', tag_empty_text)
     parsed_numbers = [number.split(' ') for number in numbers]
 
