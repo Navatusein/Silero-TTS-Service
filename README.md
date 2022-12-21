@@ -1,6 +1,8 @@
-[![Contributors][contributors-shield]][contributors-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
+![Supports aarch64 Architecture][aarch64-badge]
+![Supports amd64 Architecture][amd64-badge]
+![Supports armhf Architecture][armhf-badge]
+![Supports armv7 Architecture][armv7-badge]
+![Supports i386 Architecture][i386-badge]
 [![MIT License][license-shield]][license-url]
 
 # Silero TTS Service
@@ -196,14 +198,11 @@ Lorem ipsum dolor sit amet.
 ```
 [SSML Пример 1]
 
-[contributors-shield]: https://img.shields.io/github/contributors/Navatusein/Silero-TTS-Service.svg?style=for-the-badge
-[contributors-url]: https://github.com/Navatusein/Silero-TTS-Service/graphs/contributors
-
-[stars-shield]: https://img.shields.io/github/stars/Navatusein/Silero-TTS-Service.svg?style=for-the-badge
-[stars-url]: https://github.com/Navatusein/Silero-TTS-Service/stargazers
-
-[issues-shield]: https://img.shields.io/github/issues/Navatusein/Silero-TTS-Service.svg?style=for-the-badge
-[issues-url]: https://github.com/Navatusein/Silero-TTS-Service/issues
+[aarch64-badge]: https://img.shields.io/badge/aarch64-no-red.svg?style=for-the-badge
+[amd64-badge]: https://img.shields.io/badge/amd64-yes-green.svg?style=for-the-badge
+[armhf-badge]: https://img.shields.io/badge/armhf-no-red.svg?style=for-the-badge
+[armv7-badge]: https://img.shields.io/badge/armv7-no-red.svg?style=for-the-badge
+[i386-badge]: https://img.shields.io/badge/i386-yes-green.svg?style=for-the-badge
 
 [license-shield]: https://img.shields.io/github/license/Navatusein/Silero-TTS-Service.svg?style=for-the-badge
 [license-url]: https://github.com/Navatusein/Silero-TTS-Service/blob/Main/LICENSE
