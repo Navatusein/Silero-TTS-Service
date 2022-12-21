@@ -18,6 +18,10 @@ model.to(device)
 
 
 def get_tts_file(text: str, speaker: str, sample_rate: int, sox_params: str = '', file_extension: str = 'wav') -> str:
+
+    if speaker not in settings.silero_settings[settings.language]['speakers']:
+        raise RuntimeError(f'Invalid speaker: speaker {speaker} not supported by this language')
+
     text_hash = hashlib.sha512(bytes(text, 'UTF-8')).hexdigest()
     audio_file_path = audios_directory + speaker + '-' + text_hash + '.' + file_extension
 

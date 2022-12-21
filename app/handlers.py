@@ -1,5 +1,7 @@
+import logging
+
 from fastapi import APIRouter, Request, Depends
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, Response
 from urllib.parse import parse_qs
 from functools import lru_cache
 
@@ -7,6 +9,8 @@ from app.normalizer import normalize
 from app.tts import get_tts_file
 from app.config import Settings
 
+
+logger = logging.getLogger('uvicorn')
 router = APIRouter()
 
 
@@ -34,9 +38,12 @@ async def process(request: Request, settings: Settings = Depends(get_settings)):
 
     text = f'<speak>{text}</speak>'
 
-    audio_file = get_tts_file(text, speaker, settings.sample_rate, sox_params=settings.sox_param)
-
-    return FileResponse(path=audio_file, filename=audio_file, media_type='audio/wav')
+    try:
+        audio_file = get_tts_file(text, speaker, settings.sample_rate, sox_params=settings.sox_param)
+        return FileResponse(path=audio_file, filename=audio_file, media_type='audio/wav')
+    except RuntimeError as exception:
+        logger.error(exception)
+        return HTMLResponse(status_code=400)
 
 
 # noinspection PyRedundantParentheses
@@ -55,9 +62,12 @@ async def process(request: Request, settings: Settings = Depends(get_settings)):
 
     text = f'<speak>{text}</speak>'
 
-    audio_file = get_tts_file(text, speaker, settings.sample_rate, sox_params=settings.sox_param)
-
-    return FileResponse(path=audio_file, filename=audio_file, media_type='audio/wav')
+    try:
+        audio_file = get_tts_file(text, speaker, settings.sample_rate, sox_params=settings.sox_param)
+        return FileResponse(path=audio_file, filename=audio_file, media_type='audio/wav')
+    except RuntimeError as exception:
+        logger.error(exception)
+        return HTMLResponse(status_code=400)
 
 
 # noinspection PyRedundantParentheses
@@ -76,10 +86,14 @@ async def process(request: Request, settings: Settings = Depends(get_settings)):
 
     text = f'<speak>{text}</speak>'
 
-    audio_file = get_tts_file(text, speaker, settings.sample_rate, sox_params=settings.sox_param,
-                              file_extension='mp3')
+    try:
+        audio_file = get_tts_file(text, speaker, settings.sample_rate, sox_params=settings.sox_param,
+                                  file_extension='mp3')
 
-    return FileResponse(path=audio_file, filename=audio_file, media_type='audio/mp3')
+        return FileResponse(path=audio_file, filename=audio_file, media_type='audio/mp3')
+    except RuntimeError as exception:
+        logger.error(exception)
+        return HTMLResponse(status_code=400)
 
 
 @router.get('/test')
