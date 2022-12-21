@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  silero-tts-service:
+    image: "navatusein/silero-tts-service"
+    container_name: "silero-tts-service"
+    ports:
+      - "9898:9898"
+    restart: unless-stopped
+    environment:
+      NUMBER_OF_THREADS: 4
+      LANGUAGE: ru
+      SAMPLE_RATE: 48000
