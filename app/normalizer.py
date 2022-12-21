@@ -1,4 +1,4 @@
-from re import findall
+from re import findall, sub
 from pymorphy2 import MorphAnalyzer
 from transliterate import translit
 from num2words import num2words
@@ -11,7 +11,8 @@ morph = MorphAnalyzer(lang=settings.language)
 
 
 def normalize_number(text: str) -> str:
-    numbers = findall(r'\d+(?:\.\d+)?(?:\s<d>.*?</d>)*', text)
+    tag_empty_text = sub('<[^>]*>', '', text)
+    numbers = findall(r'\d+(?:\.\d+)?(?:\s<d>.*?</d>)*', tag_empty_text)
     parsed_numbers = [number.split(' ') for number in numbers]
 
     for number in parsed_numbers:
@@ -29,8 +30,14 @@ def normalize_number(text: str) -> str:
 
 
 def translit_text(text: str) -> str:
-    result = translit(text, settings.language)
-    return result
+    tag_empty_text = sub('<[^>]*>', '', text)
+    english_words = findall(r'[a-zA-Z]+', tag_empty_text)
+
+    for word in english_words:
+        result = translit(word, settings.language)
+        text = text.replace(word, result)
+
+    return text
 
 
 def normalize(text: str) -> str:

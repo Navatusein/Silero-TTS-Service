@@ -10,7 +10,7 @@
 - [Настройки сервера](#server-configure)
 - [Настройка в Home Assistant](#ha-configure)
 - [Настройка в Rhasspy](#rhasspy-configure)
-
+- [Функциональные возможности](#features)
 
 <a id="server-install"></a>
 ## Установка сервера
@@ -107,7 +107,7 @@ HA_FIX: True
 <br/>
 
 <a id="ha-configure"></a>
-### Настройка в Home Assistant
+## Настройка в Home Assistant
 В файле `configuration.yaml` добавьте запись:
 ```yaml
 tts:
@@ -122,7 +122,7 @@ tts:
 <br/>
 
 <a id="rhasspy-configure"></a>
-### Настройка в Rhasspy Assistant
+## Настройка в Rhasspy Assistant
 1) В настройках, в разделе Text to Speech. Выберете модуль MarryTTS.
 2) Примените настройки  Rhasspy Assistant (он перезагрузиться).
 3) Укажите адрес вашего сервера с путём `/process`.
@@ -134,6 +134,67 @@ tts:
 
 <br/>
 
+<a id="features"></a>
+## Функциональные возможности
+
+### Нормализация цифр
+Сервис умеет переводить цифры в текст.<br/>
+Пример:
+```text
+Текст с цифрой 1.
+```
+[Нормализация Пример 1]
+
+<br/>
+
+### Склонение существительных после цифры
+Сервис умеет склонять существительных после цифр.<br/>
+Для этого слово которое нужно склонить после цифры, возьмите  в  тег `<d>слово<\d>`.<br/>
+Пример:
+```text
+У меня было 15 <d>яблоко</d>.
+```
+[Склонение Пример 1]
+
+Если нужно склонить несколько слов, то каждое нужно брать в тег `<d>слово<\d>` отдельно.
+
+```text
+Мне осталось работать 15 <d>рабочий</d> <d>день</d>.
+```
+[Склонение Пример 2]
+
+<br/>
+
+### Произношение транслита
+Сервис умеет произносить транслит.<br/>
+Пример:
+```text
+Lorem ipsum dolor sit amet.
+```
+[Транслит Пример 1]
+
+<br/>
+
+### SSML
+С помощью SSML вы можете управлять паузами и просодией синтезированной речи.
+```text
+<p>
+  Когда я просыпаюсь, <prosody rate="x-slow">я говорю довольно медленно</prosody>.
+  Потом я начинаю говорить своим обычным голосом,
+  <prosody pitch="x-high"> а могу говорить тоном выше </prosody>,
+  или <prosody pitch="x-low">наоборот, ниже</prosody>.
+  Потом, если повезет – <prosody rate="fast">я могу говорить и довольно быстро.</prosody>
+  А еще я умею делать паузы любой длины, например две секунды <break time="2000ms"/>.
+  <p>
+    Также я умею делать паузы между параграфами.
+  </p>
+  <p>
+    <s>И также я умею делать паузы между предложениями</s>
+    <s>Вот например как сейчас</s>
+  </p>
+</p>
+```
+[SSML Пример 1]
 
 [contributors-shield]: https://img.shields.io/github/contributors/Navatusein/Silero-TTS-Service.svg?style=for-the-badge
 [contributors-url]: https://github.com/Navatusein/Silero-TTS-Service/graphs/contributors
@@ -148,4 +209,12 @@ tts:
 [license-url]: https://github.com/Navatusein/Silero-TTS-Service/blob/Main/LICENSE
 
 [RhasspyConfig]: /docs/RhasspyConfig.png
-[ExampleWithNumber]: /audios/ExampleWithNumber.wav
+
+[Нормализация Пример 1]: https://on.soundcloud.com/WsG6i
+
+[Склонение Пример 1]: https://on.soundcloud.com/x7RDs
+[Склонение Пример 2]: https://on.soundcloud.com/q6Bge
+
+[Транслит Пример 1]: https://on.soundcloud.com/Mfgqv
+
+[SSML Пример 1]: https://on.soundcloud.com/kk9CY
