@@ -1,3 +1,4 @@
+import json
 import logging
 
 from pydantic import BaseSettings
@@ -49,6 +50,12 @@ def settings_checker():
     if settings.sample_rate not in [8000, 24000, 48000]:
         logger.error(f'Invalid settings: sample_rate {settings.sample_rate} unsupported')
         exit(-1)
+
+    settings_dict = settings.dict()
+
+    del settings_dict['silero_settings']
+
+    logger.info(f'Settings: {json.dumps(settings_dict)}')
 
 
 settings_checker()

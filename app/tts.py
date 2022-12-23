@@ -1,11 +1,13 @@
 import os
 import torch
 import hashlib
+import logging
 
 from app.config import Settings
 from app.model_downloader import get_model_path
 
 settings = Settings()
+logger = logging.getLogger('uvicorn')
 
 device = torch.device('cpu')
 torch.set_num_threads(settings.number_of_threads)
@@ -18,9 +20,10 @@ model.to(device)
 
 
 def get_tts_file(text: str, speaker: str, sample_rate: int, sox_params: str = '', file_extension: str = 'wav') -> str:
-
     if speaker not in settings.silero_settings[settings.language]['speakers']:
         raise RuntimeError(f'Invalid speaker: speaker {speaker} not supported by this language')
+
+    logger.info(f'Start text processing: {text}')
 
     text_hash = hashlib.sha512(bytes(text, 'UTF-8')).hexdigest()
     audio_file_path = audios_directory + speaker + '-' + text_hash + '.' + file_extension

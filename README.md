@@ -20,7 +20,7 @@
 ### Установка через Docker:
 Выполните команду:
 ```commandline
-docker run -p 9898:9898 -e NUMBER_OF_THREADS=4 -e LANGUAGE='ru' -e SAMPLE_RATE=48000 --name tts_silero -d navatusein/silero-tts-service
+docker run -p 9898:9898 -e NUMBER_OF_THREADS=4 -e LANGUAGE=ru -e SAMPLE_RATE=48000 --name tts_silero -d navatusein/silero-tts-service
 ```
 
 <br/>
@@ -63,7 +63,7 @@ NUMBER_OF_THREADS: 4
 
 Язык синтеза речи `LANGUAGE`:
 ```yaml
-LANGUAGE: 'ru' 
+LANGUAGE: ru
 ```
 По умолчанию: `ru`<br/>
 
@@ -87,7 +87,7 @@ SAMPLE_RATE: 48000
 
 Параметры утилиты sox `SOX_PARAM`:
 ```yaml
-SOX_PARAM: 'reverb 50 50 10' # Добавляет эхо на речь
+SOX_PARAM: "reverb 50 50 10" # Добавляет эхо на речь
 ```
 По умолчанию: Пустой
 

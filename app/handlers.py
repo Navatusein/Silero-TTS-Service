@@ -1,7 +1,8 @@
 import logging
+import json
 
 from fastapi import APIRouter, Request, Depends
-from fastapi.responses import FileResponse, HTMLResponse, Response
+from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse
 from urllib.parse import parse_qs
 from functools import lru_cache
 
@@ -96,8 +97,10 @@ async def process(request: Request, settings: Settings = Depends(get_settings)):
         return HTMLResponse(status_code=400)
 
 
-@router.get('/test')
-async def process():
-    return normalize('<speak><p>Тест 12 <d>яблоко</d></p></speak>')
+@router.get('/settings')
+async def show_settings(settings: Settings = Depends(get_settings)):
+    settings_dict = settings.dict()
+    del settings_dict['silero_settings']
+    return PlainTextResponse(json.dumps(settings_dict, indent=2))
 
 
