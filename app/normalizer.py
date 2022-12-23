@@ -17,14 +17,34 @@ def normalize_number(text: str) -> str:
 
     for number in parsed_numbers:
         text_number = num2words(number[0], lang=settings.language)
-        text = text.replace(number[0], text_number)
+        text_number_gender = None
 
         if len(number) > 1:
             for i in range(1, len(number)):
-                print(number[i])
-                word = morph.parse(number[i][3:-4])[0]
-                declension_noun = word.make_agree_with_number(float(number[0])).word
-                text = text.replace(number[i], declension_noun)
+                word_to_declension = morph.parse(number[i][3:-4])[0]
+
+                if not text_number_gender:
+                    text_number_gender = word_to_declension.tag.gender
+
+                inflected_word = word_to_declension.make_agree_with_number(float(number[0]))
+
+                if inflected_word:
+                    word_to_declension = inflected_word
+
+                text = text.replace(number[i], word_to_declension.word)
+
+        last_word = morph.parse(text_number.split(' ')[-1])[0]
+
+        if text_number_gender:
+            inclined_number = last_word.inflect({text_number_gender})
+
+            if inclined_number:
+                text_numbers = text_number.split(' ')
+                text_numbers.pop()
+                text_numbers.append(inclined_number.word)
+                text_number = ' '.join(text_numbers)
+
+        text = text.replace(number[0], text_number)
 
     return text
 

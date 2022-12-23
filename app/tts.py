@@ -2,6 +2,7 @@ import os
 import torch
 import hashlib
 import logging
+import time
 
 from app.config import Settings
 from app.model_downloader import get_model_path
@@ -23,6 +24,7 @@ def get_tts_file(text: str, speaker: str, sample_rate: int, sox_params: str = ''
     if speaker not in settings.silero_settings[settings.language]['speakers']:
         raise RuntimeError(f'Invalid speaker: speaker {speaker} not supported by this language')
 
+    start_time = time.time()
     logger.info(f'Start text processing: {text}')
 
     text_hash = hashlib.sha512(bytes(text, 'UTF-8')).hexdigest()
@@ -40,5 +42,9 @@ def get_tts_file(text: str, speaker: str, sample_rate: int, sox_params: str = ''
 
     command = f'sox ./audios/temp.wav {audio_file_path} {sox_params}'
     os.system(command)
+
+    elapsed_time = time.time() - start_time
+
+    logger.info(f'Time spent on the process: {elapsed_time}')
 
     return audio_file_path

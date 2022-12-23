@@ -1,5 +1,6 @@
 import logging
 import json
+import os
 
 from fastapi import APIRouter, Request, Depends
 from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse
@@ -59,7 +60,7 @@ async def process(request: Request, settings: Settings = Depends(get_settings)):
     text = normalize(text)
 
     if (settings.ha_fix):
-        text = f'{text}<break time="1s"/>'
+        text = f'{text}<break time="2s"/>'
 
     text = f'<speak>{text}</speak>'
 
@@ -102,5 +103,18 @@ async def show_settings(settings: Settings = Depends(get_settings)):
     settings_dict = settings.dict()
     del settings_dict['silero_settings']
     return PlainTextResponse(json.dumps(settings_dict, indent=2))
+
+
+@router.get('/clear_cache')
+async def clear_cache(settings: Settings = Depends(get_settings)):
+    audios_directory = './audios/'
+    try:
+        for file in os.listdir(audios_directory):
+            os.remove(os.path.join(audios_directory, file))
+
+        return PlainTextResponse(status_code=200, content='Success')
+    except Exception as e:
+        logger.error(e)
+        return PlainTextResponse(status_code=400, content='Error')
 
 
