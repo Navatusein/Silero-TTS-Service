@@ -8,11 +8,31 @@
 # Silero TTS Service
 
 ## Содержание
+- [Информация](#information)
+- [Todo](#todo)
 - [Установка сервера](#server-install)
 - [Настройки сервера](#server-configure)
 - [Настройка в Home Assistant](#ha-configure)
 - [Настройка в Rhasspy](#rhasspy-configure)
 - [Функциональные возможности](#features)
+- [Endpoints](#endpoints)
+
+
+<a id="information"></a>
+## Информация
+ Данный проект я создал, чтобы обеспечить свой умный дом нормальным синтезом речи. Также, чтобы обеспечить  rhasspy нормальным синтезом речи. Уже готовые решения меня не устроили и было решено изобрести свой велосипед. За основу были взяты модели [Silero].
+
+Вдохновился я проектом [silero-ha-http-tts] от [Gromina]. Он был сыроват и я решил сделать всё по уму разуму, с настройками и готовыми контейнерами.  
+
+<br/>
+
+<a id="todo"></a>
+## Todo
+- [ ] Нормализация Даты и Времени
+- [ ] Сделать Silero TTS Service в качестве адона для Home Assistant
+- [ ] Починить склонения для Украинского языка
+
+<br/>
 
 <a id="server-install"></a>
 ## Установка сервера
@@ -198,6 +218,16 @@ Lorem ipsum dolor sit amet.
 ```
 [SSML Пример 1]
 
+<br/>
+
+<a id="endpoints"></a>
+## Endpoints
+- `GET` `/clear_cache` - Очищает кэш уже синтезированных сообщений.
+- `GET` `/settings` - Возвращает текущие настройки сервера.
+- `GET` `/voices` - Возвращает список доступных голосов для выбранного языка.
+- `GET` `/process?VOICE=[Выбраный голос]&INPUT_TEXT=[Текст для обработки]` - Возвращает аудио файл синтезированной речи.
+- `POST` `/process` в теле запроса `VOICE=[Выбраный голос]`, `INPUT_TEXT=[Текст для обработки]` - Возвращает аудио файл синтезированной речи.
+
 [aarch64-badge]: https://img.shields.io/badge/aarch64-no-red.svg?style=for-the-badge
 [amd64-badge]: https://img.shields.io/badge/amd64-yes-green.svg?style=for-the-badge
 [armhf-badge]: https://img.shields.io/badge/armhf-no-red.svg?style=for-the-badge
@@ -206,6 +236,11 @@ Lorem ipsum dolor sit amet.
 
 [license-shield]: https://img.shields.io/github/license/Navatusein/Silero-TTS-Service.svg?style=for-the-badge
 [license-url]: https://github.com/Navatusein/Silero-TTS-Service/blob/Main/LICENSE
+
+[Silero]: https://github.com/snakers4/silero-models
+
+[silero-ha-http-tts]: https://github.com/Gromina/silero-ha-http-tts
+[Gromina]: https://github.com/Gromina
 
 [RhasspyConfig]: /docs/RhasspyConfig.png
 

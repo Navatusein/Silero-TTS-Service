@@ -13,7 +13,6 @@ class Settings(BaseSettings):
     sample_rate: int = 48000
     sox_param: str = ''
     ha_fix: bool = False
-    sls_fix: bool = False
 
     silero_settings = {
         'ru': {
