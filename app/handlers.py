@@ -72,32 +72,6 @@ async def process(request: Request, settings: Settings = Depends(get_settings)):
         return HTMLResponse(status_code=400)
 
 
-# noinspection PyRedundantParentheses
-@router.post('/tts')
-async def process(request: Request, settings: Settings = Depends(get_settings)):
-    body = await request.body()
-    body_decoded = body.decode("utf-8")
-    body_args = parse_qs(body_decoded)
-
-    speaker = body_args['VOICE'][0]
-    text = body_args['INPUT_TEXT'][0]
-    text = normalize(text)
-
-    if (settings.sls_fix):
-        text = f'<break time="1s"/>{text}<break time="1s"/>'
-
-    text = f'<speak>{text}</speak>'
-
-    try:
-        audio_file = get_tts_file(text, speaker, settings.sample_rate, sox_params=settings.sox_param,
-                                  file_extension='mp3')
-
-        return FileResponse(path=audio_file, filename=audio_file, media_type='audio/mp3')
-    except RuntimeError as exception:
-        logger.error(exception)
-        return HTMLResponse(status_code=400)
-
-
 @router.get('/settings')
 async def show_settings(settings: Settings = Depends(get_settings)):
     settings_dict = settings.dict()
