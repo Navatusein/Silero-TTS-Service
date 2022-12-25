@@ -11,40 +11,47 @@ morph = MorphAnalyzer(lang=settings.language)
 
 
 def normalize_number(text: str) -> str:
-    tag_empty_text = sub('<[^>]*[^d]>', '', text)
-    numbers = findall(r'\d+(?:\.\d+)?(?:\s<d>.*?</d>)*', tag_empty_text)
-    parsed_numbers = [number.split(' ') for number in numbers]
+    number_strings = findall(r'(?<![a-zA-Z\d])\d+(?:\.\d+)?(?:(?:\s|\w)*?<d>.*?</d>)*(?!(?:[a-zA-Z\d]|\s)*\'?/?>)',
+                             text)
 
-    for number in parsed_numbers:
-        text_number = num2words(number[0], lang=settings.language)
-        text_number_gender = None
+    for number_string in number_strings:
+        number_data = number_string.split(' ')
 
-        if len(number) > 1:
-            for i in range(1, len(number)):
-                word_to_declension = morph.parse(number[i][3:-4])[0]
+        number = num2words(number_data[0], lang=settings.language)
+        number_gender = None
 
-                if not text_number_gender:
-                    text_number_gender = word_to_declension.tag.gender
+        inflected_words = []
 
-                inflected_word = word_to_declension.make_agree_with_number(float(number[0]))
+        for i in range(1, len(number_data)):
+            if '<d>' not in number_data[i]:
+                inflected_words.append(number_data[i])
+                continue
 
-                if inflected_word:
-                    word_to_declension = inflected_word
+            word_to_declension = morph.parse(number_data[i][3:-4])[0]
 
-                text = text.replace(number[i], word_to_declension.word)
+            if not number_gender:
+                number_gender = word_to_declension.tag.gender
 
-        last_word = morph.parse(text_number.split(' ')[-1])[0]
+            inflected_word = word_to_declension.make_agree_with_number(float(number_data[0]))
 
-        if text_number_gender:
-            inclined_number = last_word.inflect({text_number_gender})
+            if inflected_word:
+                word_to_declension = inflected_word
+
+            inflected_words.append(word_to_declension.word)
+
+        last_number_word = morph.parse(number.split(' ')[-1])[0]
+
+        if number_gender:
+            inclined_number = last_number_word.inflect({number_gender})
 
             if inclined_number:
-                text_numbers = text_number.split(' ')
-                text_numbers.pop()
-                text_numbers.append(inclined_number.word)
-                text_number = ' '.join(text_numbers)
+                numbers = number.split(' ')
+                numbers.pop()
+                numbers.append(inclined_number.word)
+                number = ' '.join(numbers)
 
-        text = text.replace(number[0], text_number)
+        inflected_words.insert(0, number)
+        text = text.replace(number_string, ' '.join(inflected_words))
 
     return text
 
