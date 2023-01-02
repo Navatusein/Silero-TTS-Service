@@ -1,10 +1,13 @@
 import json
 import logging
+import os
+import torch
 
 from pydantic import BaseSettings
 
-
 logger = logging.getLogger('uvicorn')
+models_directory = './models/'
+audios_directory = './audios/'
 
 
 class Settings(BaseSettings):
@@ -53,6 +56,17 @@ def settings_checker():
     settings_dict = settings.dict()
 
     del settings_dict['silero_settings']
+
+    if not os.path.exists(models_directory):
+        os.mkdir(models_directory)
+
+    model_name = settings.silero_settings[settings.language]['model_name']
+    local_file = models_directory + model_name
+
+    if not os.path.exists(local_file):
+        url = settings.silero_settings[settings.language]['model_link']
+        logger.info(f'Download silero model {local_file}')
+        torch.hub.download_url_to_file(url, local_file)
 
     logger.info(f'Settings: {json.dumps(settings_dict)}')
 
