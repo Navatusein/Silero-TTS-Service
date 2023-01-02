@@ -42,7 +42,7 @@ async def process(request: Request, settings: Settings = Depends(get_settings)):
 
     try:
         audio_file = get_tts_file(text, speaker, settings.sample_rate, sox_params=settings.sox_param)
-        return FileResponse(path=audio_file, filename=audio_file, media_type='audio/wav')
+        return FileResponse(path=audio_file)
     except RuntimeError as exception:
         logger.error(exception)
         return HTMLResponse(status_code=400)
