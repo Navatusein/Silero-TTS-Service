@@ -130,6 +130,7 @@ dmypy.json
 
 # Silero model
 *.pt
+models/
 
 # Audio files
 audios/

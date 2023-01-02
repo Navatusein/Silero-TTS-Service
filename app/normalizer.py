@@ -10,8 +10,16 @@ settings = Settings()
 morph = MorphAnalyzer(lang=settings.language)
 
 
+def normalize_date(text: str) -> str:
+    return text
+
+
+def normalize_time(text: str) -> str:
+    return text
+
+
 def normalize_number(text: str) -> str:
-    number_strings = findall(r'(?<![a-zA-Z\d])\d+(?:\.\d+)?(?:(?:\s|\w)*?<d>.*?</d>)*(?!(?:[a-zA-Z\d]|\s)*\'?/?>)',
+    number_strings = findall(r'(?<![a-zA-Z\d])\d+(?:\.\d+)?(?:(?:\s|\w)*?<d>.*?</d>)*(?!(?:[a-zA-Z\d\"\']|\s)*\'?/?>)',
                              text)
 
     for number_string in number_strings:

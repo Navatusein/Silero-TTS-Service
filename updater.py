@@ -91,7 +91,8 @@ if __name__ == '__main__':
     logging.basicConfig(
         level=logging.INFO,
         format=log_format,
-        encoding='UTF-8'
+        encoding='UTF-8',
+        datefmt='%Y-%m-%d %H:%M:%S'
     )
 
     require_update, require_requirements_update = check_for_available_update()

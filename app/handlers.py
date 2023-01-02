@@ -1,3 +1,4 @@
+import gc
 import logging
 import json
 import os
@@ -8,9 +9,8 @@ from urllib.parse import parse_qs
 from functools import lru_cache
 
 from app.normalizer import normalize
-from app.tts import get_tts_file
 from app.config import Settings
-
+from app.tts import get_audio_file
 
 logger = logging.getLogger('uvicorn')
 router = APIRouter()
@@ -41,8 +41,8 @@ async def process(request: Request, settings: Settings = Depends(get_settings)):
     text = f'<speak>{text}</speak>'
 
     try:
-        audio_file = get_tts_file(text, speaker, settings.sample_rate, sox_params=settings.sox_param)
-        return FileResponse(path=audio_file, filename=audio_file, media_type='audio/wav')
+        audio_file = get_audio_file(text=text, speaker=speaker)
+        return FileResponse(path=audio_file)
     except RuntimeError as exception:
         logger.error(exception)
         return HTMLResponse(status_code=400)
@@ -65,7 +65,7 @@ async def process(request: Request, settings: Settings = Depends(get_settings)):
     text = f'<speak>{text}</speak>'
 
     try:
-        audio_file = get_tts_file(text, speaker, settings.sample_rate, sox_params=settings.sox_param)
+        audio_file = get_audio_file(text=text, speaker=speaker)
         return FileResponse(path=audio_file, filename=audio_file, media_type='audio/wav')
     except RuntimeError as exception:
         logger.error(exception)
@@ -85,6 +85,8 @@ async def clear_cache(settings: Settings = Depends(get_settings)):
     try:
         for file in os.listdir(audios_directory):
             os.remove(os.path.join(audios_directory, file))
+
+        gc.collect()
 
         return PlainTextResponse(status_code=200, content='Success')
     except Exception as e:
