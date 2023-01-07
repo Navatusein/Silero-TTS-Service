@@ -8,6 +8,7 @@ from pydantic import BaseSettings
 logger = logging.getLogger('uvicorn')
 models_directory = './models/'
 audios_directory = './audios/'
+version = '1.0.0'
 
 
 class Settings(BaseSettings):
@@ -68,6 +69,7 @@ def settings_checker():
         logger.info(f'Download silero model {local_file}')
         torch.hub.download_url_to_file(url, local_file)
 
+    logger.info(f'Current version: {version}')
     logger.info(f'Settings: {json.dumps(settings_dict)}')
 
 
