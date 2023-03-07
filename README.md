@@ -9,7 +9,6 @@
 
 ## Содержание
 - [Информация](#information)
-- [Todo](#todo)
 - [Установка сервера](#server-install)
 - [Настройки сервера](#server-configure)
 - [Настройка в Home Assistant](#ha-configure)
@@ -23,15 +22,6 @@
  Данный проект я создал, чтобы обеспечить свой умный дом нормальным синтезом речи. Также, чтобы обеспечить  rhasspy нормальным синтезом речи. Уже готовые решения меня не устроили и было решено изобрести свой велосипед. За основу были взяты модели [Silero].
 
 Вдохновился я проектом [silero-ha-http-tts] от [Gromina]. Он был сыроват и я решил сделать всё по уму разуму, с настройками и готовыми контейнерами.  
-
-<br/>
-
-<a id="todo"></a>
-## Todo
-- [ ] Нормализация Даты и Времени
-- [ ] Сделать Silero TTS Service в качестве адона для Home Assistant
-- [ ] Починить склонения для Украинского языка
-
 <br/>
 
 <a id="server-install"></a>
@@ -40,7 +30,7 @@
 ### Установка через Docker:
 Выполните команду:
 ```commandline
-docker run -p 9898:9898 -e NUMBER_OF_THREADS=4 -e LANGUAGE=ru -e SAMPLE_RATE=48000 --name tts_silero -d navatusein/silero-tts-service
+docker run -p 9898:9898 -m 1g -e NUMBER_OF_THREADS=4 -e LANGUAGE=ru -e SAMPLE_RATE=48000 --name tts_silero -d navatusein/silero-tts-service
 ```
 
 <br/>
@@ -54,6 +44,10 @@ services:
   silero-tts-service:
     image: "navatusein/silero-tts-service"
     container_name: "silero-tts-service"
+    deploy:
+      resources:
+        limits:
+          memory: 1G
     ports:
       - "9898:9898"
     restart: unless-stopped
