@@ -15,6 +15,7 @@
 - [Настройка в Rhasspy](#rhasspy-configure)
 - [Функциональные возможности](#features)
 - [Endpoints](#endpoints)
+- [Вывод звука на Bluetooth колонку](#bluetooth-speaker)
 
 
 <a id="information"></a>
@@ -222,6 +223,108 @@ Lorem ipsum dolor sit amet.
 - `GET` `/process?VOICE=[Выбраный голос]&INPUT_TEXT=[Текст для обработки]` - Возвращает аудио файл синтезированной речи.
 - `POST` `/process` в теле запроса `VOICE=[Выбраный голос]`, `INPUT_TEXT=[Текст для обработки]` - Возвращает аудио файл синтезированной речи.
 
+<br/>
+
+<a id="bluetooth-speaker"></a>
+## Вывод звука на Bluetooth колонку
+
+1) Если Home Assistant как основная ОС (HAOS), то читаем эту документацию [TTS Bluetooth Speaker for Home Assistant]
+2) Если Home Assistant стоит на Debian, то делаем следующее:
+
+Отредактируем client.conf
+
+```commandline
+nano /etc/pulse/client.conf
+```
+
+Добавим следующее:
+
+```commandline
+default-server = unix:/usr/share/hassio/audio/external/pulse.sock
+autospawn = no
+```
+
+![ClientConf]
+
+Перезапускаем pulseaudio.
+
+```commandline
+pulseaudio -k && pulseaudio --start
+```
+
+Ставим аддон [Mopidy версии Current version: 2.1.1] и ставим только эту версию. Mopidy 2.2.0 не ставить - она сломанная. Подробнее про поломанную версию Mopidy 2.2.0 читать [здесь].
+
+Добавляем в configuration.yaml
+```yaml
+media_player:
+  - platform: mpd
+    name: "MPD Mopidy"
+    host: localhost
+    port: 6600
+```
+
+Перезагружаем Home Assistant полностью, чтобы перезагрузился сам Debian.
+
+![RebootHa]
+
+Подключаем bluetooth колонку к Debian, kb,j через GUI, либо через консоль используя команду bluetoothctl
+
+Включим bluetooth:
+
+```commandline
+power on
+```
+
+Запуск сканирования девайсов:
+
+```commandline
+scan on
+```
+
+Как увидели свой девайс, спариваемся с устройством:
+
+```commandline
+pair [mac адрес девайса]
+```
+
+Подключаемся к устройству:
+
+```commandline
+connect [mac адрес девайса]
+```
+
+Добавляем устройство в доверенные:
+
+```commandline
+trust [mac адрес девайса]
+```
+
+Далее, как добавлен bluetooth девайс то в двух аддонов Rhasspy Assistant и Mopidy нужно указать источник вывода звука bluetooth девайса:
+
+1) В Rhasspy Assistant указываем так:
+
+![RhasspyAssistantConfig]
+
+2) В Mopidy указываем так:
+
+![MopidyConfig]
+
+
+Проверяем работоспособность:
+
+![TtsSay]
+
+Код: 
+
+```yaml
+service: tts.marytts_say
+data:
+  entity_id: media_player.mpd_mopidy
+  message: >-
+    Спустя 15 лет жизнь некогда бороздившего космические просторы Жана-Люка
+    Пикара
+```
+
 [aarch64-badge]: https://img.shields.io/badge/aarch64-no-red.svg?style=for-the-badge
 [amd64-badge]: https://img.shields.io/badge/amd64-yes-green.svg?style=for-the-badge
 [armhf-badge]: https://img.shields.io/badge/armhf-no-red.svg?style=for-the-badge
@@ -246,3 +349,17 @@ Lorem ipsum dolor sit amet.
 [Транслит Пример 1]: https://on.soundcloud.com/Mfgqv
 
 [SSML Пример 1]: https://on.soundcloud.com/kk9CY
+
+[TTS Bluetooth Speaker for Home Assistant]: https://github.com/pkozul/ha-tts-bluetooth-speaker
+
+[ClientConf]: /docs/ClientConf.png
+
+[Mopidy версии Current version: 2.1.1]: https://github.com/Llntrvr/Hassio-Addons
+
+[здесь]: https://github.com/Poeschl/Hassio-Addons/issues/334
+
+[RebootHa]: /docs/RebootHa.png
+
+[RhasspyAssistantConfig]: /docs/RhasspyAssistantConfig.png
+[MopidyConfig]: /docs/MopidyConfig.png
+[TtsSay]: /docs/TtsSay.png
