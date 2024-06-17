@@ -10,7 +10,7 @@ ENV PYTHONUNBUFFERED=1
 RUN python3 -m ensurepip
 RUN pip3 install --no-cache --upgrade pip setuptools
 
-RUN pip3 install torch==1.13.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
+RUN pip3 install torch>=2.0.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
 
 ADD requirements_docker.txt .
 RUN pip3 install -r requirements_docker.txt

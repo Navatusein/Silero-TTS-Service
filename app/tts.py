@@ -6,7 +6,6 @@ import logging
 import torch
 import argparse
 
-
 from app.config import Settings, audios_directory, models_directory
 
 settings = Settings()
@@ -21,13 +20,14 @@ model = torch.package.PackageImporter(model_file_path).load_pickle('tts_models',
 model.to(device)
 
 
-def generate_speach(text: str, speaker: str, sample_rate: int, file_path: str, sox_params: str = '') -> bool:
+def generate_speach(text: str, speaker: str, sample_rate: int,
+                    file_path: str, sox_params: str = '', volume: float = 1) -> bool:
     temp_file_path = audios_directory + 'temp.wav'
 
     torch.no_grad()
     model.save_wav(ssml_text=text, speaker=speaker, audio_path=temp_file_path, sample_rate=sample_rate)
 
-    command = f'sox ./audios/temp.wav {file_path} {sox_params}'
+    command = f'sox -v {volume} ./audios/temp.wav {file_path} {sox_params}'
     os.system(command)
 
     return True
