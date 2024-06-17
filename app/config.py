@@ -8,7 +8,7 @@ from pydantic import BaseSettings
 logger = logging.getLogger('uvicorn')
 models_directory = './models/'
 audios_directory = './audios/'
-version = '1.0.0'
+version = '2.0.0'
 
 
 class Settings(BaseSettings):
@@ -20,7 +20,7 @@ class Settings(BaseSettings):
 
     silero_settings = {
         'ru': {
-            'model_link': 'https://models.silero.ai/models/tts/ru/v3_1_ru.pt',
+            'model_link': 'https://models.silero.ai/models/tts/ru/v4_ru.pt',
             'model_name': 'ru_model.pt',
             'speakers': [
                 'aidar', 'baya', 'kseniya', 'xenia', 'eugene', 'random'
@@ -31,6 +31,13 @@ class Settings(BaseSettings):
             'model_name': 'uk_model.pt',
             'speakers': [
                 'mykyta', 'random'
+            ]
+        },
+        'multi': {
+            'model_link': 'https://models.silero.ai/models/tts/multi/v2_multi.pt',
+            'model_name': 'multi_model.pt',
+            'speakers': [
+                'irina', 'random'
             ]
         }
     }
@@ -46,7 +53,7 @@ def settings_checker():
         logger.error('Invalid settings: number_of_threads can\'t be lower than zero')
         exit(-1)
 
-    if settings.language not in ['uk', 'ru']:
+    if settings.language not in ['uk', 'ru', 'multi']:
         logger.error(f'Invalid settings: language {settings.language} unsupported')
         exit(-1)
 

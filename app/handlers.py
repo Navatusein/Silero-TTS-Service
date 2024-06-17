@@ -34,10 +34,12 @@ async def process(settings: Settings = Depends(get_settings)):
 @router.get('/process')
 async def process(request: Request, settings: Settings = Depends(get_settings)):
     request_args = dict(request.query_params)
+
+    print(request_args)
+
     speaker = request_args['VOICE']
     text = request_args['INPUT_TEXT']
     text = normalize(text)
-
     text = f'<speak>{text}</speak>'
 
     try:
@@ -55,13 +57,15 @@ async def process(request: Request, settings: Settings = Depends(get_settings)):
     body_decoded = body.decode("utf-8")
     body_args = parse_qs(body_decoded)
 
+    print(body_args)
+
     speaker = body_args['VOICE'][0]
     text = body_args['INPUT_TEXT'][0]
     text = normalize(text)
 
     if (settings.ha_fix):
         text = f'{text}<break time="2s"/>'
-
+    
     text = f'<speak>{text}</speak>'
 
     try:
