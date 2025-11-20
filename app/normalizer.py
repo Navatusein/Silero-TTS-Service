@@ -19,13 +19,13 @@ def normalize_time(text: str) -> str:
 
 
 def normalize_number(text: str) -> str:
-    number_strings = findall(r'(?<![a-zA-Z\d])\d+(?:\.\d+)?(?:(?:\s|\w)*?<d>.*?</d>)*(?!(?:[a-zA-Z\d\"\']|\s)*\'?/?>)',
+    number_strings = findall(r'(?<![a-zA-Z\d])\d+(?:\,\d+)?(?:(?:\s|\w)*?<d>.*?</d>)*(?!(?:[a-zA-Z\d\"\']|\s)*\'?/?>)',
                              text)
 
     for number_string in number_strings:
         number_data = number_string.split(' ')
 
-        number = num2words(number_data[0], lang=settings.language)
+        number = num2words(number_data[0].replace(',', '.'), lang=settings.language)
         number_gender = None
 
         inflected_words = []
