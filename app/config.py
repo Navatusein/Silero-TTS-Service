@@ -3,7 +3,7 @@ import logging
 import os
 import torch
 
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 logger = logging.getLogger('uvicorn')
 models_directory = './models/'
@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     sox_param: str = ''
     ha_fix: bool = False
 
-    silero_settings = {
+    silero_settings: dict = {
         'ru': {
             'model_link': 'https://models.silero.ai/models/tts/ru/v5_1_ru.pt',
             'model_name': 'ru_model.pt',
@@ -42,8 +42,7 @@ class Settings(BaseSettings):
         }
     }
 
-    class Config:
-        env_file = ".env"
+    model_config = SettingsConfigDict(env_file='.env', extra='ignore')
 
 
 def settings_checker():
@@ -61,7 +60,7 @@ def settings_checker():
         logger.error(f'Invalid settings: sample_rate {settings.sample_rate} unsupported')
         exit(-1)
 
-    settings_dict = settings.dict()
+    settings_dict = settings.model_dump()
 
     del settings_dict['silero_settings']
 

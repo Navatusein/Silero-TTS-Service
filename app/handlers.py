@@ -92,7 +92,7 @@ async def process(request: Request, settings: Settings = Depends(get_settings)):
 
 @router.get('/settings')
 async def show_settings(settings: Settings = Depends(get_settings)):
-    settings_dict = settings.dict()
+    settings_dict = settings.model_dump()
     del settings_dict['silero_settings']
     return PlainTextResponse(json.dumps(settings_dict, indent=2))
 
