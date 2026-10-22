@@ -167,6 +167,24 @@ jobs:
           docker buildx imagetools inspect "$DOCKERHUB_IMAGE:$DOCKER_METADATA_OUTPUT_VERSION"
           docker buildx imagetools inspect "$GHCR_IMAGE:$DOCKER_METADATA_OUTPUT_VERSION"
 
+  dockerhub_description:
+    name: Update Docker Hub description
+    needs: merge
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v5
+
+      # Requires a Docker Hub token with read/write/delete scope
+      - name: Update Docker Hub description
+        uses: peter-evans/dockerhub-description@v5
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: ${{ env.DOCKERHUB_IMAGE }}
+          readme-filepath: ./docs/dockerhub/README.md
+          short-description: Offline Russian and Ukrainian TTS on Silero models with MaryTTS API for Home Assistant and Rhasspy
+
   release:
     name: Create draft release
     needs: merge

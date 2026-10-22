@@ -311,7 +311,7 @@ python -m venv .venv
 
 Для ручной проверки API есть коллекция Postman: [docs/postman/Silero-TTS-Service.postman_collection.json](docs/postman/Silero-TTS-Service.postman_collection.json). В ней запросы для русского и украинского языка, проверки ответов и примеры обработки текста.
 
-Релиз собирается GitHub Actions при пуше тега версии, например `3.0.0`: образы для `amd64` и `aarch64` публикуются в Docker Hub и GHCR, создаётся черновик релиза. Версия тега должна совпадать с `version` в `app/config.py` и `silero-tts/config.yaml`.
+Релиз собирается GitHub Actions при пуше тега версии, например `3.0.0`: образы для `amd64` и `aarch64` публикуются в Docker Hub и GHCR, создаётся черновик релиза. Версия тега должна совпадать с `version` в `app/config.py` и `silero-tts/config.yaml`. Описание образа на Docker Hub берётся из [docs/dockerhub/README.md](docs/dockerhub/README.md) и обновляется при каждом релизе.
 
 ## Благодарности
 
