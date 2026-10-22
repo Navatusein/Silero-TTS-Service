@@ -7,3 +7,11 @@ model.pt
 /models
 version
 /venv
+/.venv
+.env
+.git
+.github
+.idea
+/docs
+/silero-tts
+repository.yaml
