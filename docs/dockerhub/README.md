@@ -19,7 +19,7 @@ Offline Russian and Ukrainian text-to-speech based on [Silero](https://github.co
 | Тег | Описание |
 |---|---|
 | `latest` | Последний релиз |
-| `3`, `3.0`, `3.0.0` | Конкретная версия |
+| `3`, `3.0`, `3.0.1` | Конкретная версия |
 | `dev-latest` | Сборка из ветки `dev`, только `amd64` |
 
 Архитектуры: `linux/amd64`, `linux/arm64` (Raspberry Pi 4/5 и другие ARM устройства).

@@ -1,5 +1,5 @@
 name: Silero TTS
-version: "3.0.0"
+version: "3.0.1"
 slug: silero_tts
 description: Offline Russian and Ukrainian speech synthesis based on Silero models (MaryTTS compatible API)
 url: https://github.com/Navatusein/Silero-TTS-Service
