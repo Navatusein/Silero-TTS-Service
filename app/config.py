@@ -3,12 +3,14 @@ import logging
 import os
 import torch
 
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings, JsonConfigSettingsSource, PydanticBaseSettingsSource, SettingsConfigDict
 
 logger = logging.getLogger('uvicorn')
-models_directory = './models/'
+models_directory = os.path.join(os.environ.get('MODELS_DIRECTORY', './models'), '')
+# Home Assistant add-on options, the file exists only when running as an add-on
+addon_options_file = '/data/options.json'
 audios_directory = './audios/'
-version = '2.0.0'
+version = '3.0.0'
 
 
 class Settings(BaseSettings):
@@ -17,33 +19,43 @@ class Settings(BaseSettings):
     sample_rate: int = 48000
     sox_param: str = ''
     ha_fix: bool = False
+    voice_tts_errors: bool = False
 
-    silero_settings = {
+    silero_settings: dict = {
         'ru': {
-            'model_link': 'https://models.silero.ai/models/tts/ru/v4_ru.pt',
-            'model_name': 'ru_model.pt',
+            'model_link': 'https://models.silero.ai/models/tts/ru/v5_1_ru.pt',
             'speakers': [
-                'aidar', 'baya', 'kseniya', 'xenia', 'eugene', 'random'
+                'aidar', 'baya', 'kseniya', 'xenia', 'eugene'
             ]
         },
         'uk': {
-            'model_link': 'https://models.silero.ai/models/tts/ua/v3_ua.pt',
-            'model_name': 'uk_model.pt',
+            'model_link': 'https://models.silero.ai/models/tts/ua/v4_ua.pt',
             'speakers': [
                 'mykyta', 'random'
             ]
         },
         'multi': {
             'model_link': 'https://models.silero.ai/models/tts/multi/v2_multi.pt',
-            'model_name': 'multi_model.pt',
             'speakers': [
                 'irina', 'random'
             ]
         }
     }
 
-    class Config:
-        env_file = ".env"
+    model_config = SettingsConfigDict(env_file='.env', json_file=addon_options_file, extra='ignore')
+
+    @classmethod
+    def settings_customise_sources(cls, settings_cls: type[BaseSettings],
+                                   init_settings: PydanticBaseSettingsSource,
+                                   env_settings: PydanticBaseSettingsSource,
+                                   dotenv_settings: PydanticBaseSettingsSource,
+                                   file_secret_settings: PydanticBaseSettingsSource):
+        return init_settings, env_settings, dotenv_settings, JsonConfigSettingsSource(settings_cls), file_secret_settings
+
+
+def get_model_file(settings: Settings) -> str:
+    # The file name comes from the link, so a new model version is downloaded instead of reusing the old file
+    return models_directory + os.path.basename(settings.silero_settings[settings.language]['model_link'])
 
 
 def settings_checker():
@@ -61,15 +73,13 @@ def settings_checker():
         logger.error(f'Invalid settings: sample_rate {settings.sample_rate} unsupported')
         exit(-1)
 
-    settings_dict = settings.dict()
+    settings_dict = settings.model_dump()
 
     del settings_dict['silero_settings']
 
-    if not os.path.exists(models_directory):
-        os.mkdir(models_directory)
+    os.makedirs(models_directory, exist_ok=True)
 
-    model_name = settings.silero_settings[settings.language]['model_name']
-    local_file = models_directory + model_name
+    local_file = get_model_file(settings)
 
     if not os.path.exists(local_file):
         url = settings.silero_settings[settings.language]['model_link']

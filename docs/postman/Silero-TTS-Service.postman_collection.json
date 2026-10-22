@@ -1,0 +1,597 @@
+{
+  "info": {
+    "name": "Silero TTS Service",
+    "description": "Local testing of Silero TTS Service.\n\nThe server works with one language at a time (`LANGUAGE` env). Run Service / Settings first: it stores the server language, and the Process folder for the other language is skipped.\n\nVariables: `baseUrl` - service address, `voiceRu` - ru voice (aidar, baya, kseniya, xenia, eugene), `voiceUk` - uk voice (mykyta, random).\n\nTo listen to the result use Send and Download on `/process` requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:9898"
+    },
+    {
+      "key": "voiceRu",
+      "value": "xenia"
+    },
+    {
+      "key": "voiceUk",
+      "value": "mykyta"
+    },
+    {
+      "key": "language",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Service",
+      "item": [
+        {
+          "name": "Status",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 and status work', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json().status).to.eql('work');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Settings",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/settings"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 and settings without silero_settings', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "    const settings = pm.response.json();",
+                  "    pm.expect(settings).to.have.property('language');",
+                  "    pm.expect(settings).to.not.have.property('silero_settings');",
+                  "    pm.collectionVariables.set('language', settings.language);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Voices",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/voices"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 and voice for server language is available', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "    const language = pm.collectionVariables.get('language');",
+                  "    const voice = pm.collectionVariables.get(language === 'uk' ? 'voiceUk' : 'voiceRu');",
+                  "    pm.expect(pm.response.text().split('\\n')).to.include(voice);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Clear cache",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/clear_cache"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 Success', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.text()).to.eql('Success');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Process (ru)",
+      "description": "Requests for a server started with LANGUAGE=ru. Skipped automatically when Service / Settings reports another language.",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const language = pm.collectionVariables.get('language');",
+              "if (language && language !== 'ru') {",
+              "    console.log(`Skip: server language is ${language}, folder is ru`);",
+              "    pm.execution.skipRequest();",
+              "}"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.info.requestName.startsWith('Error')) {",
+              "    pm.test('400 with message', () => {",
+              "        pm.response.to.have.status(400);",
+              "        pm.expect(pm.response.text()).to.include('VOICE and INPUT_TEXT');",
+              "    });",
+              "} else {",
+              "    pm.test('200 and audio', () => {",
+              "        pm.response.to.have.status(200);",
+              "        pm.expect(pm.response.headers.get('Content-Type')).to.include('audio');",
+              "        pm.expect(pm.response.responseSize).to.be.above(44);",
+              "    });",
+              "}"
+            ]
+          }
+        }
+      ],
+      "item": [
+        {
+          "name": "GET VOICE + INPUT_TEXT",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/process?VOICE={{voiceRu}}&INPUT_TEXT=Привет, это проверка синтеза речи.",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ],
+              "query": [
+                {
+                  "key": "VOICE",
+                  "value": "{{voiceRu}}"
+                },
+                {
+                  "key": "INPUT_TEXT",
+                  "value": "Привет, это проверка синтеза речи."
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET voice + text (lowercase, #29)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/process?voice={{voiceRu}}&text=Параметры в нижнем регистре.",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ],
+              "query": [
+                {
+                  "key": "voice",
+                  "value": "{{voiceRu}}"
+                },
+                {
+                  "key": "text",
+                  "value": "Параметры в нижнем регистре."
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST VOICE + INPUT_TEXT (Rhasspy / Home Assistant)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "VOICE",
+                  "value": "{{voiceRu}}"
+                },
+                {
+                  "key": "INPUT_TEXT",
+                  "value": "Запрос в формате MaryTTS."
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/process"
+          }
+        },
+        {
+          "name": "POST voice + text (lowercase, #29)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "voice",
+                  "value": "{{voiceRu}}"
+                },
+                {
+                  "key": "text",
+                  "value": "Параметры в нижнем регистре."
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/process"
+          }
+        },
+        {
+          "name": "Numbers: decimal with dot and comma",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "VOICE",
+                  "value": "{{voiceRu}}"
+                },
+                {
+                  "key": "INPUT_TEXT",
+                  "value": "На улице 3.5 градуса, дома 23,5 градуса. Числа 1, 2, 3."
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/process"
+          }
+        },
+        {
+          "name": "Numbers: declension with <d>",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "VOICE",
+                  "value": "{{voiceRu}}"
+                },
+                {
+                  "key": "INPUT_TEXT",
+                  "value": "У меня 21 <d>яблоко</d> и 5 <d>груша</d>, 2 <d>красный</d> <d>книга</d> и 1.5 <d>метр</d>."
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/process"
+          }
+        },
+        {
+          "name": "Error: GET without INPUT_TEXT",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/process?VOICE={{voiceRu}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ],
+              "query": [
+                {
+                  "key": "VOICE",
+                  "value": "{{voiceRu}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Error: POST without VOICE",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "INPUT_TEXT",
+                  "value": "Без голоса."
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/process"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Process (uk)",
+      "description": "Requests for a server started with LANGUAGE=uk. Skipped automatically when Service / Settings reports another language.",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const language = pm.collectionVariables.get('language');",
+              "if (language && language !== 'uk') {",
+              "    console.log(`Skip: server language is ${language}, folder is uk`);",
+              "    pm.execution.skipRequest();",
+              "}"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.info.requestName.startsWith('Error')) {",
+              "    pm.test('400 with message', () => {",
+              "        pm.response.to.have.status(400);",
+              "        pm.expect(pm.response.text()).to.include('VOICE and INPUT_TEXT');",
+              "    });",
+              "} else {",
+              "    pm.test('200 and audio', () => {",
+              "        pm.response.to.have.status(200);",
+              "        pm.expect(pm.response.headers.get('Content-Type')).to.include('audio');",
+              "        pm.expect(pm.response.responseSize).to.be.above(44);",
+              "    });",
+              "}"
+            ]
+          }
+        }
+      ],
+      "item": [
+        {
+          "name": "GET VOICE + INPUT_TEXT",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/process?VOICE={{voiceUk}}&INPUT_TEXT=Привіт, це перевірка синтезу мовлення.",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ],
+              "query": [
+                {
+                  "key": "VOICE",
+                  "value": "{{voiceUk}}"
+                },
+                {
+                  "key": "INPUT_TEXT",
+                  "value": "Привіт, це перевірка синтезу мовлення."
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET voice + text (lowercase, #29)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/process?voice={{voiceUk}}&text=Параметри в нижньому регістрі.",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ],
+              "query": [
+                {
+                  "key": "voice",
+                  "value": "{{voiceUk}}"
+                },
+                {
+                  "key": "text",
+                  "value": "Параметри в нижньому регістрі."
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST VOICE + INPUT_TEXT (Rhasspy / Home Assistant)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "VOICE",
+                  "value": "{{voiceUk}}"
+                },
+                {
+                  "key": "INPUT_TEXT",
+                  "value": "Запит у форматі MaryTTS."
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/process"
+          }
+        },
+        {
+          "name": "POST voice + text (lowercase, #29)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "voice",
+                  "value": "{{voiceUk}}"
+                },
+                {
+                  "key": "text",
+                  "value": "Параметри в нижньому регістрі."
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/process"
+          }
+        },
+        {
+          "name": "Numbers: decimal with dot and comma",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "VOICE",
+                  "value": "{{voiceUk}}"
+                },
+                {
+                  "key": "INPUT_TEXT",
+                  "value": "На вулиці 3.5 градуса, вдома 23,5 градуса. Числа 1, 2, 3."
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/process"
+          }
+        },
+        {
+          "name": "Numbers: declension with <d>",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "VOICE",
+                  "value": "{{voiceUk}}"
+                },
+                {
+                  "key": "INPUT_TEXT",
+                  "value": "У мене 21 <d>гривня</d>, 2 <d>червоний</d> <d>яблуко</d>, 3 <d>книга</d> і 5 <d>груша</d>."
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/process"
+          }
+        },
+        {
+          "name": "Error: GET without INPUT_TEXT",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/process?VOICE={{voiceUk}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "process"
+              ],
+              "query": [
+                {
+                  "key": "VOICE",
+                  "value": "{{voiceUk}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Error: POST without VOICE",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "INPUT_TEXT",
+                  "value": "Без голосу."
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/process"
+          }
+        }
+      ]
+    }
+  ]
+}

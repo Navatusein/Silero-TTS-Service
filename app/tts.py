@@ -6,7 +6,7 @@ import logging
 import torch
 import argparse
 
-from app.config import Settings, audios_directory, models_directory
+from app.config import Settings, audios_directory, get_model_file
 
 settings = Settings()
 logger = logging.getLogger('uvicorn')
@@ -14,7 +14,7 @@ logger = logging.getLogger('uvicorn')
 device = torch.device('cpu')
 torch.set_num_threads(settings.number_of_threads)
 
-model_file_path = models_directory + settings.silero_settings[settings.language]['model_name']
+model_file_path = get_model_file(settings)
 
 model = torch.package.PackageImporter(model_file_path).load_pickle('tts_models', 'model')
 model.to(device)
@@ -25,10 +25,21 @@ def generate_speach(text: str, speaker: str, sample_rate: int,
     temp_file_path = audios_directory + 'temp.wav'
 
     torch.no_grad()
-    model.save_wav(ssml_text=text, speaker=speaker, audio_path=temp_file_path, sample_rate=sample_rate)
+
+    try:
+        model.save_wav(ssml_text=text, speaker=speaker, audio_path=temp_file_path, sample_rate=sample_rate)
+    except Exception as exception:
+        raise RuntimeError(f'Silero model failed: {exception}') from exception
 
     command = f'sox -v {volume} ./audios/temp.wav {file_path} {sox_params}'
-    os.system(command)
+    exit_code = os.system(command)
+
+    if exit_code != 0 or not os.path.exists(file_path):
+        # Remove a partially written file, otherwise get_audio_file would return it from the cache
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+        raise RuntimeError(f'sox failed with exit code {exit_code}: {command}')
 
     return True
 

@@ -15,10 +15,44 @@ from app.tts import get_audio_file
 logger = logging.getLogger('uvicorn')
 router = APIRouter()
 
+error_texts = {
+    'ru': 'Ошибка синтеза речи.',
+    'uk': 'Помилка синтезу мовлення.',
+    'multi': 'Ошибка синтеза речи.',
+}
+
 
 @lru_cache()
 def get_settings():
     return Settings()
+
+
+def get_tts_args(args: dict) -> tuple[str, str] | None:
+    args = {key.lower(): value for key, value in args.items()}
+
+    speaker = args.get('voice')
+    text = args.get('input_text', args.get('text'))
+
+    if not speaker or not text:
+        return None
+
+    return speaker, text
+
+
+def error_response(settings: Settings, speaker: str | None, message: str):
+    logger.error(message)
+
+    if settings.voice_tts_errors:
+        speakers = settings.silero_settings[settings.language]['speakers']
+        error_speaker = speaker if speaker in speakers else speakers[0]
+
+        try:
+            audio_file = get_audio_file(text=f'<speak>{error_texts[settings.language]}</speak>', speaker=error_speaker)
+            return FileResponse(path=audio_file, media_type='audio/wav')
+        except RuntimeError as exception:
+            logger.error(f'Failed to voice the error: {exception}')
+
+    return PlainTextResponse(status_code=400, content=message)
 
 
 @router.get('/')
@@ -33,12 +67,12 @@ async def process(settings: Settings = Depends(get_settings)):
 
 @router.get('/process')
 async def process(request: Request, settings: Settings = Depends(get_settings)):
-    request_args = dict(request.query_params)
+    tts_args = get_tts_args(dict(request.query_params))
 
-    print(request_args)
+    if tts_args is None:
+        return error_response(settings, None, 'Parameters VOICE and INPUT_TEXT are required')
 
-    speaker = request_args['VOICE']
-    text = request_args['INPUT_TEXT']
+    speaker, text = tts_args
     text = normalize(text)
     text = f'<speak>{text}</speak>'
 
@@ -46,8 +80,7 @@ async def process(request: Request, settings: Settings = Depends(get_settings)):
         audio_file = get_audio_file(text=text, speaker=speaker)
         return FileResponse(path=audio_file)
     except RuntimeError as exception:
-        logger.error(exception)
-        return HTMLResponse(status_code=400)
+        return error_response(settings, speaker, str(exception))
 
 
 # noinspection PyRedundantParentheses
@@ -55,12 +88,14 @@ async def process(request: Request, settings: Settings = Depends(get_settings)):
 async def process(request: Request, settings: Settings = Depends(get_settings)):
     body = await request.body()
     body_decoded = body.decode("utf-8")
-    body_args = parse_qs(body_decoded)
+    body_args = {key: values[0] for key, values in parse_qs(body_decoded).items()}
 
-    print(body_args)
+    tts_args = get_tts_args(body_args)
 
-    speaker = body_args['VOICE'][0]
-    text = body_args['INPUT_TEXT'][0]
+    if tts_args is None:
+        return error_response(settings, None, 'Parameters VOICE and INPUT_TEXT are required')
+
+    speaker, text = tts_args
     text = normalize(text)
 
     if (settings.ha_fix):
@@ -72,13 +107,12 @@ async def process(request: Request, settings: Settings = Depends(get_settings)):
         audio_file = get_audio_file(text=text, speaker=speaker)
         return FileResponse(path=audio_file, filename=audio_file, media_type='audio/wav')
     except RuntimeError as exception:
-        logger.error(exception)
-        return HTMLResponse(status_code=400)
+        return error_response(settings, speaker, str(exception))
 
 
 @router.get('/settings')
 async def show_settings(settings: Settings = Depends(get_settings)):
-    settings_dict = settings.dict()
+    settings_dict = settings.model_dump()
     del settings_dict['silero_settings']
     return PlainTextResponse(json.dumps(settings_dict, indent=2))
 
@@ -87,6 +121,9 @@ async def show_settings(settings: Settings = Depends(get_settings)):
 async def clear_cache(settings: Settings = Depends(get_settings)):
     audios_directory = './audios/'
     try:
+        # The cache directory is created on the first synthesis, so it may not exist yet
+        os.makedirs(audios_directory, exist_ok=True)
+
         for file in os.listdir(audios_directory):
             os.remove(os.path.join(audios_directory, file))
 

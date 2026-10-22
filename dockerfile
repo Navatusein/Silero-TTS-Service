@@ -1,4 +1,4 @@
-FROM python:3.10
+FROM python:3.14
 
 WORKDIR /usr/app
 
@@ -10,14 +10,16 @@ ENV PYTHONUNBUFFERED=1
 RUN python3 -m ensurepip
 RUN pip3 install --no-cache --upgrade pip setuptools
 
-RUN pip3 install torch>=2.0.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
-
 ADD requirements_docker.txt .
 RUN pip3 install -r requirements_docker.txt
 
 ADD ./ ./
 
 EXPOSE 9898
+
+# The model is downloaded on the first start, so the start period is long
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10m --retries=3 \
+    CMD python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:9898/', timeout=4)"
 
 CMD [ "python3", "-u", "./main.py" ]
 
