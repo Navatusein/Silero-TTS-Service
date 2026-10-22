@@ -10,7 +10,7 @@ models_directory = os.path.join(os.environ.get('MODELS_DIRECTORY', './models'), 
 # Home Assistant add-on options, the file exists only when running as an add-on
 addon_options_file = '/data/options.json'
 audios_directory = './audios/'
-version = '2.0.0'
+version = '3.0.0'
 
 
 class Settings(BaseSettings):
