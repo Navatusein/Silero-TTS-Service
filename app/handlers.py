@@ -121,6 +121,9 @@ async def show_settings(settings: Settings = Depends(get_settings)):
 async def clear_cache(settings: Settings = Depends(get_settings)):
     audios_directory = './audios/'
     try:
+        # The cache directory is created on the first synthesis, so it may not exist yet
+        os.makedirs(audios_directory, exist_ok=True)
+
         for file in os.listdir(audios_directory):
             os.remove(os.path.join(audios_directory, file))
 
