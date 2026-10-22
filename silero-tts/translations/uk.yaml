@@ -1,0 +1,21 @@
+configuration:
+  language:
+    name: Мова
+    description: Мова синтезу мовлення. Модель завантажується під час першого запуску.
+  number_of_threads:
+    name: Потоки
+    description: Кількість потоків процесора для синтезу мовлення.
+  sample_rate:
+    name: Частота дискретизації
+    description: Частота дискретизації підсумкового аудіо.
+  sox_param:
+    name: Ефекти SoX
+    description: Додаткові параметри SoX для мовлення, наприклад "reverb 50 50 10".
+  ha_fix:
+    name: Виправлення для Home Assistant
+    description: Додає паузу в кінці POST запитів, щоб Home Assistant не обрізав кінець фрази.
+  voice_tts_errors:
+    name: Озвучувати помилки
+    description: Замість помилки HTTP 400 повертає аудіо з фразою «Помилка синтезу мовлення».
+network:
+  9898/tcp: HTTP API, сумісний з MaryTTS

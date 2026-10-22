@@ -1,0 +1,21 @@
+configuration:
+  language:
+    name: Language
+    description: Speech synthesis language. The model is downloaded on first start.
+  number_of_threads:
+    name: Threads
+    description: Number of CPU threads used for speech synthesis.
+  sample_rate:
+    name: Sample rate
+    description: Sample rate of the generated audio.
+  sox_param:
+    name: SoX effects
+    description: Extra SoX parameters applied to the speech, for example "reverb 50 50 10".
+  ha_fix:
+    name: Home Assistant fix
+    description: Adds a pause at the end of POST requests so Home Assistant does not cut the end of the phrase.
+  voice_tts_errors:
+    name: Voice errors
+    description: Returns a spoken "speech synthesis error" message instead of an HTTP 400 error.
+network:
+  9898/tcp: MaryTTS compatible HTTP API

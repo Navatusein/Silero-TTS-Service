@@ -3,10 +3,12 @@ import logging
 import os
 import torch
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, JsonConfigSettingsSource, PydanticBaseSettingsSource, SettingsConfigDict
 
 logger = logging.getLogger('uvicorn')
-models_directory = './models/'
+models_directory = os.path.join(os.environ.get('MODELS_DIRECTORY', './models'), '')
+# Home Assistant add-on options, the file exists only when running as an add-on
+addon_options_file = '/data/options.json'
 audios_directory = './audios/'
 version = '2.0.0'
 
@@ -40,7 +42,15 @@ class Settings(BaseSettings):
         }
     }
 
-    model_config = SettingsConfigDict(env_file='.env', extra='ignore')
+    model_config = SettingsConfigDict(env_file='.env', json_file=addon_options_file, extra='ignore')
+
+    @classmethod
+    def settings_customise_sources(cls, settings_cls: type[BaseSettings],
+                                   init_settings: PydanticBaseSettingsSource,
+                                   env_settings: PydanticBaseSettingsSource,
+                                   dotenv_settings: PydanticBaseSettingsSource,
+                                   file_secret_settings: PydanticBaseSettingsSource):
+        return init_settings, env_settings, dotenv_settings, JsonConfigSettingsSource(settings_cls), file_secret_settings
 
 
 def get_model_file(settings: Settings) -> str:
@@ -67,8 +77,7 @@ def settings_checker():
 
     del settings_dict['silero_settings']
 
-    if not os.path.exists(models_directory):
-        os.mkdir(models_directory)
+    os.makedirs(models_directory, exist_ok=True)
 
     local_file = get_model_file(settings)
 
