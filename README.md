@@ -18,7 +18,7 @@
 
 https://github.com/user-attachments/assets/a9326a07-9726-41d2-ac45-744fedf3b4ba
 
-> 🔈 GitHub запускает примеры без звука: включите его кнопкой динамика в плеере.
+<sub>🔈 GitHub запускает видео без звука, включите его кнопкой динамика в плеере.</sub>
 
 ## Содержание
 
@@ -123,25 +123,37 @@ docker compose up -d
 
 https://github.com/user-attachments/assets/faf640d5-8fc3-4959-a30b-39de8c18fe53
 
+<sub>🔈 GitHub запускает видео без звука, включите его кнопкой динамика в плеере.</sub>
+
 **baya**
 
 https://github.com/user-attachments/assets/60acead4-7826-4e90-8d02-2cf7b924f3fd
+
+<sub>🔈 GitHub запускает видео без звука, включите его кнопкой динамика в плеере.</sub>
 
 **kseniya**
 
 https://github.com/user-attachments/assets/0aacce5e-b923-4834-a451-c5a64e2a14ec
 
+<sub>🔈 GitHub запускает видео без звука, включите его кнопкой динамика в плеере.</sub>
+
 **xenia**
 
 https://github.com/user-attachments/assets/a9326a07-9726-41d2-ac45-744fedf3b4ba
+
+<sub>🔈 GitHub запускает видео без звука, включите его кнопкой динамика в плеере.</sub>
 
 **eugene**
 
 https://github.com/user-attachments/assets/0a7ed497-028f-4bc2-b155-10f49f744e9b
 
+<sub>🔈 GitHub запускает видео без звука, включите его кнопкой динамика в плеере.</sub>
+
 **mykyta**
 
 https://github.com/user-attachments/assets/5e2634f6-8625-42a2-bc3f-bd1fb52f82f7
+
+<sub>🔈 GitHub запускает видео без звука, включите его кнопкой динамика в плеере.</sub>
 
 Эти же примеры в формате MP3 лежат в [docs/audio](docs/audio).
 
@@ -189,6 +201,8 @@ tts:
 
 https://github.com/user-attachments/assets/c407ff41-87aa-48f5-a4f5-4a0398923fa9
 
+<sub>🔈 GitHub запускает видео без звука, включите его кнопкой динамика в плеере.</sub>
+
 ### Склонение слов после числа
 
 Возьмите слово в тег `<d>`, и сервис согласует его с числом. Если склонить нужно несколько слов, каждое берётся в свой тег, а прилагательные согласуются с последним словом по роду.
@@ -199,6 +213,8 @@ https://github.com/user-attachments/assets/c407ff41-87aa-48f5-a4f5-4a0398923fa9
 
 https://github.com/user-attachments/assets/7bb53a15-7259-46e7-966c-bf81c984c7a7
 
+<sub>🔈 GitHub запускает видео без звука, включите его кнопкой динамика в плеере.</sub>
+
 Для украинского языка работает так же, дроби читаются нормативно: «двадцять три цілих п'ять десятих».
 
 ```text
@@ -206,6 +222,8 @@ https://github.com/user-attachments/assets/7bb53a15-7259-46e7-966c-bf81c984c7a7
 ```
 
 https://github.com/user-attachments/assets/b266412d-47f8-40fc-9ca1-d45cf0db670c
+
+<sub>🔈 GitHub запускает видео без звука, включите его кнопкой динамика в плеере.</sub>
 
 ### Латиница
 
@@ -216,6 +234,8 @@ Lorem ipsum dolor sit amet.
 ```
 
 https://github.com/user-attachments/assets/712f674d-ee81-4ca4-9a48-89afb8546965
+
+<sub>🔈 GitHub запускает видео без звука, включите его кнопкой динамика в плеере.</sub>
 
 ### Эмодзи и Markdown
 
@@ -230,6 +250,8 @@ https://github.com/user-attachments/assets/712f674d-ee81-4ca4-9a48-89afb8546965
 Будет озвучено: «Погода. Сегодня тепло, плюс двадцать пять градусов. Ветер слабый.»
 
 https://github.com/user-attachments/assets/72457967-9023-45cf-804d-d5f25b316ae6
+
+<sub>🔈 GitHub запускает видео без звука, включите его кнопкой динамика в плеере.</sub>
 
 ### SSML
 
@@ -254,6 +276,8 @@ https://github.com/user-attachments/assets/72457967-9023-45cf-804d-d5f25b316ae6
 ```
 
 https://github.com/user-attachments/assets/2a6d7a35-ea32-4ab4-b277-731fec64ebcb
+
+<sub>🔈 GitHub запускает видео без звука, включите его кнопкой динамика в плеере.</sub>
 
 <a id="api"></a>
 ## API
