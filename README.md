@@ -16,6 +16,10 @@
 
 Я сделал этот проект, потому что готовые решения для умного дома говорили по-русски плохо. Вдохновлялся проектом [silero-ha-http-tts] от [Gromina] и довёл идею до готового сервиса с настройками и Docker образами.
 
+https://github.com/user-attachments/assets/a9326a07-9726-41d2-ac45-744fedf3b4ba
+
+> 🔈 GitHub запускает примеры без звука: включите его кнопкой динамика в плеере.
+
 ## Содержание
 
 - [Возможности](#features)
@@ -109,8 +113,39 @@ docker compose up -d
 
 | Язык | Код | Голоса |
 |:---:|:---:|---|
-| Русский | `ru` | [`aidar` 🔊][voice-aidar] [`baya` 🔊][voice-baya] [`kseniya` 🔊][voice-kseniya] [`xenia` 🔊][voice-xenia] [`eugene` 🔊][voice-eugene] |
-| Українська | `uk` | [`mykyta` 🔊][voice-mykyta] `random` |
+| Русский | `ru` | `aidar` `baya` `kseniya` `xenia` `eugene` |
+| Українська | `uk` | `mykyta` `random` |
+
+<details>
+<summary>🔊 Послушать голоса</summary>
+
+**aidar**
+
+https://github.com/user-attachments/assets/faf640d5-8fc3-4959-a30b-39de8c18fe53
+
+**baya**
+
+https://github.com/user-attachments/assets/60acead4-7826-4e90-8d02-2cf7b924f3fd
+
+**kseniya**
+
+https://github.com/user-attachments/assets/0aacce5e-b923-4834-a451-c5a64e2a14ec
+
+**xenia**
+
+https://github.com/user-attachments/assets/a9326a07-9726-41d2-ac45-744fedf3b4ba
+
+**eugene**
+
+https://github.com/user-attachments/assets/0a7ed497-028f-4bc2-b155-10f49f744e9b
+
+**mykyta**
+
+https://github.com/user-attachments/assets/5e2634f6-8625-42a2-bc3f-bd1fb52f82f7
+
+Эти же примеры в формате MP3 лежат в [docs/audio](docs/audio).
+
+</details>
 
 <a id="ha-configure"></a>
 ## Подключение к Home Assistant
@@ -146,37 +181,45 @@ tts:
 
 ### Числа
 
-Числа читаются словами, дроби можно писать через точку или запятую. [🔊 Послушать][example-numbers]
+Числа читаются словами, дроби можно писать через точку или запятую.
 
 ```text
 Текст с цифрой 1. На улице 23,5 градуса, а влажность 64.8 процента.
 ```
 
+https://github.com/user-attachments/assets/c407ff41-87aa-48f5-a4f5-4a0398923fa9
+
 ### Склонение слов после числа
 
-Возьмите слово в тег `<d>`, и сервис согласует его с числом. Если склонить нужно несколько слов, каждое берётся в свой тег, а прилагательные согласуются с последним словом по роду. [🔊 Послушать][example-declension]
+Возьмите слово в тег `<d>`, и сервис согласует его с числом. Если склонить нужно несколько слов, каждое берётся в свой тег, а прилагательные согласуются с последним словом по роду.
 
 ```text
 У меня было 15 <d>яблоко</d>. Мне осталось работать 21 <d>рабочий</d> <d>день</d>.
 ```
 
-Для украинского языка работает так же, дроби читаются нормативно: «двадцять три цілих п'ять десятих». [🔊 Послушати][example-numbers-uk]
+https://github.com/user-attachments/assets/7bb53a15-7259-46e7-966c-bf81c984c7a7
+
+Для украинского языка работает так же, дроби читаются нормативно: «двадцять три цілих п'ять десятих».
 
 ```text
 На вулиці 23,5 градуса. У мене 21 <d>гривня</d>, 2 <d>нова</d> <d>книга</d> і 5 <d>яблуко</d>.
 ```
 
+https://github.com/user-attachments/assets/b266412d-47f8-40fc-9ca1-d45cf0db670c
+
 ### Латиница
 
-Слова на латинице читаются транслитом. [🔊 Послушать][example-translit]
+Слова на латинице читаются транслитом.
 
 ```text
 Lorem ipsum dolor sit amet.
 ```
 
+https://github.com/user-attachments/assets/712f674d-ee81-4ca4-9a48-89afb8546965
+
 ### Эмодзи и Markdown
 
-Эмодзи и разметка Markdown удаляются: заголовки, списки, выделение, ссылки и код. Ответ LLM ассистента можно передавать как есть. [🔊 Послушать][example-markdown]
+Эмодзи и разметка Markdown удаляются: заголовки, списки, выделение, ссылки и код. Ответ LLM ассистента можно передавать как есть.
 
 ```markdown
 # Погода ☀️
@@ -186,9 +229,11 @@ Lorem ipsum dolor sit amet.
 
 Будет озвучено: «Погода. Сегодня тепло, плюс двадцать пять градусов. Ветер слабый.»
 
+https://github.com/user-attachments/assets/72457967-9023-45cf-804d-d5f25b316ae6
+
 ### SSML
 
-С помощью SSML можно управлять паузами и просодией речи. [🔊 Послушать][example-ssml]
+С помощью SSML можно управлять паузами и просодией речи.
 
 ```xml
 <p>
@@ -207,6 +252,8 @@ Lorem ipsum dolor sit amet.
   </p>
 </p>
 ```
+
+https://github.com/user-attachments/assets/2a6d7a35-ea32-4ab4-b277-731fec64ebcb
 
 <a id="api"></a>
 ## API
@@ -267,15 +314,3 @@ python -m venv .venv
 
 [RhasspyConfig]: docs/images/RhasspyConfig.png
 
-[voice-aidar]: docs/audio/voice-aidar.mp3
-[voice-baya]: docs/audio/voice-baya.mp3
-[voice-kseniya]: docs/audio/voice-kseniya.mp3
-[voice-xenia]: docs/audio/voice-xenia.mp3
-[voice-eugene]: docs/audio/voice-eugene.mp3
-[voice-mykyta]: docs/audio/voice-mykyta.mp3
-[example-numbers]: docs/audio/numbers.mp3
-[example-declension]: docs/audio/declension.mp3
-[example-numbers-uk]: docs/audio/numbers-uk.mp3
-[example-translit]: docs/audio/translit.mp3
-[example-markdown]: docs/audio/markdown.mp3
-[example-ssml]: docs/audio/ssml.mp3
