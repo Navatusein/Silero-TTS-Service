@@ -1,4 +1,5 @@
-from re import Match, findall, sub
+from re import DOTALL, MULTILINE, Match, findall, sub
+from emoji import replace_emoji
 from pymorphy3 import MorphAnalyzer
 from pymorphy3.analyzer import Parse
 from transliterate import translit
@@ -15,6 +16,29 @@ number_gender_forms = {
     'uk': {'один': {'femn': 'одна', 'neut': 'одне'}, 'два': {'femn': 'дві'}},
 }
 
+
+def end_sentence(match: Match) -> str:
+    line = match.group(1)
+
+    # Headers and list items have no ending punctuation, add it to pause between lines
+    return line if line[-1] in '.,:;!?…' else f'{line}.'
+
+
+markdown_patterns = [
+    (r'```[^\n]*\n?(.*?)```', r'\1', DOTALL),  # code block, keep the content
+    (r'^[ \t]*(?:[-*_][ \t]*){3,}$', '', MULTILINE),  # horizontal rule
+    (r'^[ \t]{0,3}#{1,6}[ \t]+(.+?)[ \t]*$', end_sentence, MULTILINE),  # header
+    (r'^[ \t]*>[ \t]?', '', MULTILINE),  # quote
+    (r'^[ \t]*[-*+][ \t]+(.+?)[ \t]*$', end_sentence, MULTILINE),  # bullet list item
+    (r'^([ \t]*\d+\.[ \t]+.+?)[ \t]*$', end_sentence, MULTILINE),  # numbered list item
+    (r'!\[([^\]]*)\]\([^)]*\)', r'\1', 0),  # image, keep the alt text
+    (r'\[([^\]]+)\]\([^)]*\)', r'\1', 0),  # link, keep the text
+    (r'(\*\*|__)(?!\s)(.+?)(?<!\s)\1', r'\2', 0),  # bold
+    (r'(?<![\w*])\*(?![\s*])(.+?)(?<![\s*])\*(?![\w*])', r'\1', 0),  # italic
+    (r'(?<!\w)_(?![\s_])(.+?)(?<![\s_])_(?!\w)', r'\1', 0),  # italic
+    (r'~~(.+?)~~', r'\1', 0),  # strikethrough
+    (r'`([^`]*)`', r'\1', 0),  # inline code
+]
 
 uk_fraction_denominators = [
     ('десята', 'десятих'),
@@ -123,7 +147,16 @@ def translit_text(text: str) -> str:
     return text
 
 
+def remove_markdown(text: str) -> str:
+    for pattern, replacement, flags in markdown_patterns:
+        text = sub(pattern, replacement, text, flags=flags)
+
+    return text
+
+
 def normalize(text: str) -> str:
+    text = replace_emoji(text, replace='')
+    text = remove_markdown(text)
     text = " ".join(text.split())
     text = normalize_number(text)
     text = translit_text(text)

@@ -9,5 +9,6 @@ pymorphy3~=2.0.6
 pymorphy3-dicts-ru~=2.4.417150.4580142
 pymorphy3-dicts-uk~=2.4.1.1.1663094765
 transliterate~=1.10.2
+emoji~=2.16.0
 requests~=2.32.5
 scipy~=1.18.1
