@@ -8,8 +8,6 @@ arch:
   - amd64
   - aarch64
 startup: services
-boot: auto
-watchdog: http://[HOST]:[PORT:9898]/
 ports:
   9898/tcp: 9898
 ports_description:

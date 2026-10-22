@@ -17,5 +17,9 @@ ADD ./ ./
 
 EXPOSE 9898
 
+# The model is downloaded on the first start, so the start period is long
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10m --retries=3 \
+    CMD python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:9898/', timeout=4)"
+
 CMD [ "python3", "-u", "./main.py" ]
 
