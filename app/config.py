@@ -20,14 +20,14 @@ class Settings(BaseSettings):
 
     silero_settings = {
         'ru': {
-            'model_link': 'https://models.silero.ai/models/tts/ru/v4_ru.pt',
+            'model_link': 'https://models.silero.ai/models/tts/ru/v5_1_ru.pt',
             'model_name': 'ru_model.pt',
             'speakers': [
-                'aidar', 'baya', 'kseniya', 'xenia', 'eugene', 'random'
+                'aidar', 'baya', 'kseniya', 'xenia', 'eugene'
             ]
         },
         'uk': {
-            'model_link': 'https://models.silero.ai/models/tts/ua/v3_ua.pt',
+            'model_link': 'https://models.silero.ai/models/tts/ua/v4_ua.pt',
             'model_name': 'uk_model.pt',
             'speakers': [
                 'mykyta', 'random'
