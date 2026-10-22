@@ -21,6 +21,18 @@ def get_settings():
     return Settings()
 
 
+def get_tts_args(args: dict) -> tuple[str, str] | None:
+    args = {key.lower(): value for key, value in args.items()}
+
+    speaker = args.get('voice')
+    text = args.get('input_text', args.get('text'))
+
+    if not speaker or not text:
+        return None
+
+    return speaker, text
+
+
 @router.get('/')
 async def index():
     return {'status': 'work'}
@@ -33,12 +45,12 @@ async def process(settings: Settings = Depends(get_settings)):
 
 @router.get('/process')
 async def process(request: Request, settings: Settings = Depends(get_settings)):
-    request_args = dict(request.query_params)
+    tts_args = get_tts_args(dict(request.query_params))
 
-    print(request_args)
+    if tts_args is None:
+        return PlainTextResponse(status_code=400, content='Parameters VOICE and INPUT_TEXT are required')
 
-    speaker = request_args['VOICE']
-    text = request_args['INPUT_TEXT']
+    speaker, text = tts_args
     text = normalize(text)
     text = f'<speak>{text}</speak>'
 
@@ -55,12 +67,14 @@ async def process(request: Request, settings: Settings = Depends(get_settings)):
 async def process(request: Request, settings: Settings = Depends(get_settings)):
     body = await request.body()
     body_decoded = body.decode("utf-8")
-    body_args = parse_qs(body_decoded)
+    body_args = {key: values[0] for key, values in parse_qs(body_decoded).items()}
 
-    print(body_args)
+    tts_args = get_tts_args(body_args)
 
-    speaker = body_args['VOICE'][0]
-    text = body_args['INPUT_TEXT'][0]
+    if tts_args is None:
+        return PlainTextResponse(status_code=400, content='Parameters VOICE and INPUT_TEXT are required')
+
+    speaker, text = tts_args
     text = normalize(text)
 
     if (settings.ha_fix):
