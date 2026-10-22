@@ -15,6 +15,12 @@ from app.tts import get_audio_file
 logger = logging.getLogger('uvicorn')
 router = APIRouter()
 
+error_texts = {
+    'ru': 'Ошибка синтеза речи.',
+    'uk': 'Помилка синтезу мовлення.',
+    'multi': 'Ошибка синтеза речи.',
+}
+
 
 @lru_cache()
 def get_settings():
@@ -33,6 +39,22 @@ def get_tts_args(args: dict) -> tuple[str, str] | None:
     return speaker, text
 
 
+def error_response(settings: Settings, speaker: str | None, message: str):
+    logger.error(message)
+
+    if settings.voice_tts_errors:
+        speakers = settings.silero_settings[settings.language]['speakers']
+        error_speaker = speaker if speaker in speakers else speakers[0]
+
+        try:
+            audio_file = get_audio_file(text=f'<speak>{error_texts[settings.language]}</speak>', speaker=error_speaker)
+            return FileResponse(path=audio_file, media_type='audio/wav')
+        except RuntimeError as exception:
+            logger.error(f'Failed to voice the error: {exception}')
+
+    return PlainTextResponse(status_code=400, content=message)
+
+
 @router.get('/')
 async def index():
     return {'status': 'work'}
@@ -48,7 +70,7 @@ async def process(request: Request, settings: Settings = Depends(get_settings)):
     tts_args = get_tts_args(dict(request.query_params))
 
     if tts_args is None:
-        return PlainTextResponse(status_code=400, content='Parameters VOICE and INPUT_TEXT are required')
+        return error_response(settings, None, 'Parameters VOICE and INPUT_TEXT are required')
 
     speaker, text = tts_args
     text = normalize(text)
@@ -58,8 +80,7 @@ async def process(request: Request, settings: Settings = Depends(get_settings)):
         audio_file = get_audio_file(text=text, speaker=speaker)
         return FileResponse(path=audio_file)
     except RuntimeError as exception:
-        logger.error(exception)
-        return HTMLResponse(status_code=400)
+        return error_response(settings, speaker, str(exception))
 
 
 # noinspection PyRedundantParentheses
@@ -72,7 +93,7 @@ async def process(request: Request, settings: Settings = Depends(get_settings)):
     tts_args = get_tts_args(body_args)
 
     if tts_args is None:
-        return PlainTextResponse(status_code=400, content='Parameters VOICE and INPUT_TEXT are required')
+        return error_response(settings, None, 'Parameters VOICE and INPUT_TEXT are required')
 
     speaker, text = tts_args
     text = normalize(text)
@@ -86,8 +107,7 @@ async def process(request: Request, settings: Settings = Depends(get_settings)):
         audio_file = get_audio_file(text=text, speaker=speaker)
         return FileResponse(path=audio_file, filename=audio_file, media_type='audio/wav')
     except RuntimeError as exception:
-        logger.error(exception)
-        return HTMLResponse(status_code=400)
+        return error_response(settings, speaker, str(exception))
 
 
 @router.get('/settings')

@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     sample_rate: int = 48000
     sox_param: str = ''
     ha_fix: bool = False
+    voice_tts_errors: bool = False
 
     silero_settings: dict = {
         'ru': {

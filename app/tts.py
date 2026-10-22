@@ -25,10 +25,21 @@ def generate_speach(text: str, speaker: str, sample_rate: int,
     temp_file_path = audios_directory + 'temp.wav'
 
     torch.no_grad()
-    model.save_wav(ssml_text=text, speaker=speaker, audio_path=temp_file_path, sample_rate=sample_rate)
+
+    try:
+        model.save_wav(ssml_text=text, speaker=speaker, audio_path=temp_file_path, sample_rate=sample_rate)
+    except Exception as exception:
+        raise RuntimeError(f'Silero model failed: {exception}') from exception
 
     command = f'sox -v {volume} ./audios/temp.wav {file_path} {sox_params}'
-    os.system(command)
+    exit_code = os.system(command)
+
+    if exit_code != 0 or not os.path.exists(file_path):
+        # Remove a partially written file, otherwise get_audio_file would return it from the cache
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+        raise RuntimeError(f'sox failed with exit code {exit_code}: {command}')
 
     return True
 
