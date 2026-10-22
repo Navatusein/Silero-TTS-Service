@@ -22,21 +22,18 @@ class Settings(BaseSettings):
     silero_settings: dict = {
         'ru': {
             'model_link': 'https://models.silero.ai/models/tts/ru/v5_1_ru.pt',
-            'model_name': 'ru_model.pt',
             'speakers': [
                 'aidar', 'baya', 'kseniya', 'xenia', 'eugene'
             ]
         },
         'uk': {
             'model_link': 'https://models.silero.ai/models/tts/ua/v4_ua.pt',
-            'model_name': 'uk_model.pt',
             'speakers': [
                 'mykyta', 'random'
             ]
         },
         'multi': {
             'model_link': 'https://models.silero.ai/models/tts/multi/v2_multi.pt',
-            'model_name': 'multi_model.pt',
             'speakers': [
                 'irina', 'random'
             ]
@@ -44,6 +41,11 @@ class Settings(BaseSettings):
     }
 
     model_config = SettingsConfigDict(env_file='.env', extra='ignore')
+
+
+def get_model_file(settings: Settings) -> str:
+    # The file name comes from the link, so a new model version is downloaded instead of reusing the old file
+    return models_directory + os.path.basename(settings.silero_settings[settings.language]['model_link'])
 
 
 def settings_checker():
@@ -68,8 +70,7 @@ def settings_checker():
     if not os.path.exists(models_directory):
         os.mkdir(models_directory)
 
-    model_name = settings.silero_settings[settings.language]['model_name']
-    local_file = models_directory + model_name
+    local_file = get_model_file(settings)
 
     if not os.path.exists(local_file):
         url = settings.silero_settings[settings.language]['model_link']

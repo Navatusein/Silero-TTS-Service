@@ -6,7 +6,7 @@ import logging
 import torch
 import argparse
 
-from app.config import Settings, audios_directory, models_directory
+from app.config import Settings, audios_directory, get_model_file
 
 settings = Settings()
 logger = logging.getLogger('uvicorn')
@@ -14,7 +14,7 @@ logger = logging.getLogger('uvicorn')
 device = torch.device('cpu')
 torch.set_num_threads(settings.number_of_threads)
 
-model_file_path = models_directory + settings.silero_settings[settings.language]['model_name']
+model_file_path = get_model_file(settings)
 
 model = torch.package.PackageImporter(model_file_path).load_pickle('tts_models', 'model')
 model.to(device)
