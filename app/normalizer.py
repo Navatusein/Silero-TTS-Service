@@ -1,5 +1,6 @@
-from re import findall, sub
+from re import Match, findall, sub
 from pymorphy3 import MorphAnalyzer
+from pymorphy3.analyzer import Parse
 from transliterate import translit
 from num2words import num2words
 
@@ -8,6 +9,21 @@ from app.config import Settings
 settings = Settings()
 
 morph = MorphAnalyzer(lang=settings.language)
+
+number_gender_forms = {
+    'ru': {'один': {'femn': 'одна', 'neut': 'одно'}, 'два': {'femn': 'две'}},
+    'uk': {'один': {'femn': 'одна', 'neut': 'одне'}, 'два': {'femn': 'дві'}},
+}
+
+
+uk_fraction_denominators = [
+    ('десята', 'десятих'),
+    ('сота', 'сотих'),
+    ('тисячна', 'тисячних'),
+    ('десятитисячна', 'десятитисячних'),
+    ('стотисячна', 'стотисячних'),
+    ('мільйонна', 'мільйонних'),
+]
 
 
 def normalize_date(text: str) -> str:
@@ -19,49 +35,81 @@ def normalize_time(text: str) -> str:
 
 
 def normalize_number(text: str) -> str:
-    number_strings = findall(r'(?<![a-zA-Z\d])\d+(?:[.,]\d+)?(?:(?:\s|\w)*?<d>.*?</d>)*(?!(?:[a-zA-Z\d\"\']|\s)*\'?/?>)',
-                             text)
+    # Three or more numbers joined by commas are a list, not a decimal: "1,2,3" -> "1, 2, 3"
+    text = sub(r'(?<![\d.,])\d+(?:,\d+){2,}(?![\d.,]*\d)', lambda match: ', '.join(match.group(0).split(',')), text)
 
-    for number_string in number_strings:
-        number_data = number_string.split(' ')
+    return sub(r'(?<![a-zA-Z\d])\d+(?:[.,]\d+)?(?:(?:\s|[^\W\d])*?<d>.*?</d>)*(?!(?:[a-zA-Z\d\"\']|\s)*\'?/?>)',
+               normalize_number_match, text)
 
-        number = num2words(number_data[0].replace(',', '.'), lang=settings.language)
-        number_gender = None
 
-        inflected_words = []
+def normalize_number_match(match: Match) -> str:
+    number_data = match.group(0).split(' ')
+    number_value = number_data[0].replace(',', '.')
 
-        for i in range(1, len(number_data)):
-            if '<d>' not in number_data[i]:
-                inflected_words.append(number_data[i])
-                continue
+    number = number_to_words(number_value)
+    number_gender = None
 
-            word_to_declension = morph.parse(number_data[i][3:-4])[0]
+    inflected_words = number_data[1:]
+    declension_indexes = [i for i, word in enumerate(inflected_words) if '<d>' in word]
 
-            if not number_gender:
-                number_gender = word_to_declension.tag.gender
+    if declension_indexes:
+        # The last word to declension is the noun, words before it are adjectives
+        noun = morph.parse(inflected_words[declension_indexes[-1]][3:-4])[0]
+        number_gender = noun.tag.gender
 
-            inflected_word = word_to_declension.make_agree_with_number(float(number_data[0]))
+        for i in declension_indexes:
+            if i == declension_indexes[-1]:
+                word_to_declension = noun
+            else:
+                parses = morph.parse(inflected_words[i][3:-4])
+                word_to_declension = next((parse for parse in parses if parse.tag.POS == 'ADJF'), parses[0])
 
-            if inflected_word:
-                word_to_declension = inflected_word
+            inflected_words[i] = agree_with_number(word_to_declension, number_value, number_gender).word
 
-            inflected_words.append(word_to_declension.word)
+    if number_gender and '.' not in number_value:
+        numbers = number.split(' ')
+        numbers[-1] = number_gender_forms.get(settings.language, {}).get(numbers[-1], {}).get(number_gender, numbers[-1])
+        number = ' '.join(numbers)
 
-        last_number_word = morph.parse(number.split(' ')[-1])[0]
+    inflected_words.insert(0, number)
 
-        if number_gender:
-            inclined_number = last_number_word.inflect({number_gender})
+    return ' '.join(inflected_words)
 
-            if inclined_number:
-                numbers = number.split(' ')
-                numbers.pop()
-                numbers.append(inclined_number.word)
-                number = ' '.join(numbers)
 
-        inflected_words.insert(0, number)
-        text = text.replace(number_string, ' '.join(inflected_words))
+def number_to_words(number_value: str) -> str:
+    whole, _, fraction = number_value.partition('.')
 
-    return text
+    # num2words reads uk decimals as "три кома п'ять", build "три цілих п'ять десятих" instead
+    if settings.language != 'uk' or not fraction or len(fraction) > len(uk_fraction_denominators):
+        return num2words(number_value, lang=settings.language)
+
+    def with_form(value: str, forms: tuple[str, str]) -> str:
+        number = int(value)
+        form = forms[0] if number % 10 == 1 and number % 100 != 11 else forms[1]
+        return f'{num2words(number, lang="uk", gender="feminine")} {form}'
+
+    return f'{with_form(whole, ("ціла", "цілих"))} {with_form(fraction, uk_fraction_denominators[len(fraction) - 1])}'
+
+
+def agree_with_number(word: Parse, number_value: str, gender: str | None) -> Parse:
+    if '.' in number_value:
+        return word.inflect({'gent'}) or word
+
+    number = int(number_value)
+
+    if number % 10 == 1 and number % 100 != 11:
+        if word.tag.POS == 'ADJF' and gender:
+            return word.inflect({gender}) or word
+
+        return word
+
+    if settings.language != 'uk':
+        return word.make_agree_with_number(number) or word
+
+    if 2 <= number % 10 <= 4 and not 12 <= number % 100 <= 14:
+        return word.inflect({'plur', 'nomn'}) or word
+
+    return word.inflect({'plur', 'gent'}) or word
 
 
 def translit_text(text: str) -> str:
