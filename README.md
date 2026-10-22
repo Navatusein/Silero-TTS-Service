@@ -1,200 +1,196 @@
-![Supports aarch64 Architecture][aarch64-badge]
-![Supports amd64 Architecture][amd64-badge]
-![Supports armhf Architecture][armhf-badge]
-![Supports armv7 Architecture][armv7-badge]
-![Supports i386 Architecture][i386-badge]
-[![MIT License][license-shield]][license-url]
+<div align="center">
 
 # Silero TTS Service
 
+**Локальный синтез русской и украинской речи для Home Assistant и Rhasspy**
+
+[![Release][release-shield]][release-url]
+[![Docker Pulls][pulls-shield]][dockerhub-url]
+![Supports amd64 Architecture][amd64-shield]
+![Supports aarch64 Architecture][aarch64-shield]
+[![MIT License][license-shield]][license-url]
+
+</div>
+
+Сервис превращает текст в естественную речь с помощью моделей [Silero] и отдаёт её по HTTP API, совместимому с MaryTTS. Работает полностью локально: никаких облаков, подписок и задержек сети. Интернет нужен только один раз, чтобы скачать модель.
+
+Я сделал этот проект, потому что готовые решения для умного дома говорили по-русски плохо. Вдохновлялся проектом [silero-ha-http-tts] от [Gromina] и довёл идею до готового сервиса с настройками и Docker образами.
+
 ## Содержание
-- [Информация](#information)
-- [Установка сервера](#server-install)
-- [Настройки сервера](#server-configure)
-- [Настройка в Home Assistant](#ha-configure)
-- [Настройка в Rhasspy](#rhasspy-configure)
-- [Функциональные возможности](#features)
-- [Endpoints](#endpoints)
-- [Вывод звука на Bluetooth колонку](#bluetooth-speaker)
 
+- [Возможности](#features)
+- [Установка](#install)
+- [Настройки](#settings)
+- [Подключение к Home Assistant](#ha-configure)
+- [Подключение к Rhasspy](#rhasspy-configure)
+- [Обработка текста](#text-processing)
+- [API](#api)
+- [Вывод звука на Bluetooth колонку](docs/bluetooth-speaker/README.md)
+- [Разработка](#development)
+- [История изменений](silero-tts/CHANGELOG.md)
 
-<a id="information"></a>
-## Информация
- Данный проект я создал, чтобы обеспечить свой умный дом нормальным синтезом речи. Также, чтобы обеспечить  rhasspy нормальным синтезом речи. Уже готовые решения меня не устроили и было решено изобрести свой велосипед. За основу были взяты модели [Silero].
+<a id="features"></a>
+## Возможности
 
-Вдохновился я проектом [silero-ha-http-tts] от [Gromina]. Он был сыроват и я решил сделать всё по уму разуму, с настройками и готовыми контейнерами.  
-<br/>
+- 🗣️ **Естественные голоса** — 5 русских и украинский голос на моделях Silero `v5_1` и `v4`.
+- 🏠 **Аддон Home Assistant** — устанавливается в пару кликов, настройки в интерфейсе HA.
+- 🔢 **Числа словами** — целые и дробные, через точку и через запятую: «23.5» → «двадцать три целых пять десятых».
+- 📚 **Склонение по числу** — `21 <d>яблоко</d>` → «двадцать одно яблоко», `2 <d>нова</d> <d>книга</d>` → «дві нові книги».
+- 🤖 **Готов к ответам LLM** — эмодзи и разметка Markdown удаляются перед синтезом.
+- 🎛️ **SSML и эффекты** — паузы, скорость и высота речи, эффекты SoX вроде эха.
+- ⚡ **Кеширование** — повторяющиеся фразы озвучиваются мгновенно.
+- 🔇 **Озвучивание ошибок** — по желанию колонка скажет «Ошибка синтеза речи» вместо тишины.
+- 🧩 **API MaryTTS** — работает со встроенной интеграцией MaryTTS в Home Assistant и с Rhasspy.
 
-<a id="server-install"></a>
-## Установка сервера
+<a id="install"></a>
+## Установка
 
-### Установка через Docker:
-Выполните команду:
-```commandline
-docker run -p 9898:9898 -m 1g -e NUMBER_OF_THREADS=4 -e LANGUAGE=ru -e SAMPLE_RATE=48000 --name tts_silero -d navatusein/silero-tts-service
+### Аддон Home Assistant
+
+[![Добавить репозиторий в Home Assistant][ha-addon-shield]][ha-addon-url]
+
+1. Нажмите кнопку выше или добавьте репозиторий `https://github.com/Navatusein/Silero-TTS-Service` вручную: `Настройки → Дополнения → Магазин дополнений → ⋮ → Репозитории`.
+2. Установите аддон **Silero TTS**, выберите язык на вкладке «Конфигурация» и запустите его.
+3. [Подключите сервис к Home Assistant](#ha-configure), указав `host: localhost`.
+
+### Docker
+
+```shell
+docker run -d -p 9898:9898 -m 1g -e LANGUAGE=ru -v silero-models:/usr/app/models --name silero-tts-service navatusein/silero-tts-service
 ```
 
-<br/>
+### Docker Compose
 
-### Установка через Docker Compose:
-Создайте файл `docker-compose.yml` и перенесите в него содержимое:
+Создайте `docker-compose.yml`:
+
 ```yaml
-version: '3'
-
 services:
   silero-tts-service:
-    image: "navatusein/silero-tts-service"
-    container_name: "silero-tts-service"
+    image: navatusein/silero-tts-service
+    container_name: silero-tts-service
+    restart: unless-stopped
+    ports:
+      - "9898:9898"
+    volumes:
+      - ./models:/usr/app/models
+    environment:
+      LANGUAGE: ru
+      NUMBER_OF_THREADS: 4
     deploy:
       resources:
         limits:
           memory: 1G
-    ports:
-      - "9898:9898"
-    restart: unless-stopped
-    environment:
-      NUMBER_OF_THREADS: 4
-      LANGUAGE: ru
-      SAMPLE_RATE: 48000
-```
-Выполните команду:
-```commandline
-docker-compose up
 ```
 
-<br/>
+И запустите:
 
-<a id="server-configure"></a>
-## Настройки сервера
-Все настройки сервера передаются как параметры окружения docker контейнеру при запуске.
-
-Количество ядер для обработки речи `NUMBER_OF_THREADS`:
-```yaml
-NUMBER_OF_THREADS: 4 
+```shell
+docker compose up -d
 ```
-Количество потоков от 1 до количества ядер процессора сервера.<br/>
-По умолчанию: `4`<br/>
-<br/>
 
-Язык синтеза речи `LANGUAGE`:
-```yaml
-LANGUAGE: ru
-```
-По умолчанию: `ru`<br/>
+Образы публикуются в [Docker Hub][dockerhub-url] и [GitHub Container Registry][ghcr-url] для `amd64` и `aarch64` (Raspberry Pi 4/5 и другие ARM устройства). Том для моделей нужен, чтобы модель не скачивалась заново при пересоздании контейнера.
 
-Поддерживаемые языки, с доступными для них голосами:
+<a id="settings"></a>
+## Настройки
 
-|    Язык    | Код языка | Поддерживаемые голоса                              |
-|:----------:|:---------:|:---------------------------------------------------|
-|  Русский   |   `ru`    | `aidar` `baya` `kseniya` `xenia` `eugene` `random` |
-| Українська |   `uk`    | `mykyta` `random`                                  |
+Настройки передаются переменными окружения контейнера. В аддоне Home Assistant те же настройки задаются на вкладке «Конфигурация» в нижнем регистре.
 
-<br/>
+| Переменная | Описание | Значения | По умолчанию |
+|---|---|---|---|
+| `LANGUAGE` | Язык синтеза речи | `ru`, `uk`, `multi` | `ru` |
+| `NUMBER_OF_THREADS` | Количество потоков процессора для синтеза | от `1` до количества ядер | `4` |
+| `SAMPLE_RATE` | Частота дискретизации аудио | `8000`, `24000`, `48000` | `48000` |
+| `SOX_PARAM` | Параметры [SoX] для эффектов: эхо, тембр, басы | например `reverb 50 50 10` | пусто |
+| `HA_FIX` | Добавляет паузу в конец ответа на `POST /process`, чтобы Home Assistant не обрезал окончание фразы | `true`, `false` | `false` |
+| `VOICE_TTS_ERRORS` | При ошибке `/process` возвращает аудио «Ошибка синтеза речи» вместо ответа `400`. Подробности ошибки пишутся в лог | `true`, `false` | `false` |
+| `MODELS_DIRECTORY` | Папка для скачанных моделей | путь | `./models` |
 
-Частота дискретизации `SAMPLE_RATE`:
-```yaml
-SAMPLE_RATE: 48000 
-```
-Возможние значения: `48000`, `24000`, `8000`<br/>
-По умолчанию: `48000`
+Голоса для каждого языка:
 
-<br/>
-
-Параметры утилиты sox `SOX_PARAM`:
-```yaml
-SOX_PARAM: "reverb 50 50 10" # Добавляет эхо на речь
-```
-По умолчанию: Пустой
-
-Выходной файл проходит через утилиту sox. Ей можно передать параметры, чтобы наложить эффекты на речь: поднять тембр, добавить эхо, бас буст включить.
-
-Ссылка на документацию утилиты sox: https://linux.die.net/man/1/sox
-
-<br/>
-
-Исправление обрубания окончания фразы `HA_FIX`:
-```yaml
-HA_FIX: True 
-```
-Может принимать значения: `True` `False`<br>
-По умолчанию: `False`
-
-Исправляет ошибку, при которой Home Assistant не договаривает конец фразы. Добавляет секунду молчания в конец речи.
- 
-<br/>
+| Язык | Код | Голоса |
+|:---:|:---:|---|
+| Русский | `ru` | [`aidar` 🔊][voice-aidar] [`baya` 🔊][voice-baya] [`kseniya` 🔊][voice-kseniya] [`xenia` 🔊][voice-xenia] [`eugene` 🔊][voice-eugene] |
+| Українська | `uk` | [`mykyta` 🔊][voice-mykyta] `random` |
 
 <a id="ha-configure"></a>
-## Настройка в Home Assistant
-В файле `configuration.yaml` добавьте запись:
+## Подключение к Home Assistant
+
+Добавьте в `configuration.yaml`:
+
 ```yaml
 tts:
   - platform: marytts
-    host: localhost # Адрес сервера
+    host: localhost # Адрес сервера, для аддона localhost
     port: 9898
     codec: WAVE_FILE
-    voice: xenia # Имя голоса который хотите использовать.
-    language: ru # Не используется. Настройки языка указываются в настройках сервера.
+    voice: xenia # Голос из таблицы выше
 ```
 
-<br/>
+Язык задаётся в настройках сервиса, параметр `language` интеграции MaryTTS не используется.
 
 <a id="rhasspy-configure"></a>
-## Настройка в Rhasspy Assistant
-1) В настройках, в разделе Text to Speech. Выберете модуль MarryTTS.
-2) Примените настройки  Rhasspy Assistant (он перезагрузиться).
-3) Укажите адрес вашего сервера с путём `/process`.
-4) Нажмите на кнопку Refresh.
-5) В списке доступных голосов, выберите голос который вам нужно.
-6) Примените настройки  Rhasspy Assistant (он перезагрузиться).
+## Подключение к Rhasspy
 
-![RhasspyConfig]
+1. В настройках Rhasspy, в разделе Text to Speech, выберите модуль MaryTTS.
+2. Сохраните настройки, Rhasspy перезагрузится.
+3. Укажите адрес сервера с путём `/process`, например `http://192.168.1.10:9898/process`.
+4. Нажмите Refresh и выберите голос из списка.
+5. Сохраните настройки ещё раз.
 
-<br/>
+![Настройки Rhasspy][RhasspyConfig]
 
-<a id="features"></a>
-## Функциональные возможности
+<a id="text-processing"></a>
+## Обработка текста
 
-### Нормализация цифр
-Сервис умеет переводить цифры в текст.<br/>
-Пример:
-```text
-Текст с цифрой 1.
-```
-[Нормализация Пример 1]
+Перед синтезом текст проходит нормализацию: так Silero не спотыкается о цифры, латиницу и разметку.
 
-<br/>
+### Числа
 
-### Склонение существительных после цифры
-Сервис умеет склонять существительных после цифр.<br/>
-Для этого слово которое нужно склонить после цифры, возьмите  в  тег `<d>слово</d>`.<br/>
-Пример:
-```text
-У меня было 15 <d>яблоко</d>.
-```
-[Склонение Пример 1]
-
-Если нужно склонить несколько слов, то каждое нужно брать в тег `<d>слово</d>` отдельно.
+Числа читаются словами, дроби можно писать через точку или запятую. [🔊 Послушать][example-numbers]
 
 ```text
-Мне осталось работать 15 <d>рабочий</d> <d>день</d>.
+Текст с цифрой 1. На улице 23,5 градуса, а влажность 64.8 процента.
 ```
-[Склонение Пример 2]
 
-<br/>
+### Склонение слов после числа
 
-### Произношение транслита
-Сервис умеет произносить транслит.<br/>
-Пример:
+Возьмите слово в тег `<d>`, и сервис согласует его с числом. Если склонить нужно несколько слов, каждое берётся в свой тег, а прилагательные согласуются с последним словом по роду. [🔊 Послушать][example-declension]
+
+```text
+У меня было 15 <d>яблоко</d>. Мне осталось работать 21 <d>рабочий</d> <d>день</d>.
+```
+
+Для украинского языка работает так же, дроби читаются нормативно: «двадцять три цілих п'ять десятих». [🔊 Послушати][example-numbers-uk]
+
+```text
+На вулиці 23,5 градуса. У мене 21 <d>гривня</d>, 2 <d>нова</d> <d>книга</d> і 5 <d>яблуко</d>.
+```
+
+### Латиница
+
+Слова на латинице читаются транслитом. [🔊 Послушать][example-translit]
+
 ```text
 Lorem ipsum dolor sit amet.
 ```
-[Транслит Пример 1]
 
-<br/>
+### Эмодзи и Markdown
+
+Эмодзи и разметка Markdown удаляются: заголовки, списки, выделение, ссылки и код. Ответ LLM ассистента можно передавать как есть. [🔊 Послушать][example-markdown]
+
+```markdown
+# Погода ☀️
+- Сегодня **тепло**, плюс 25 <d>градус</d>
+- Ветер [слабый](https://example.com) 🌬️
+```
+
+Будет озвучено: «Погода. Сегодня тепло, плюс двадцать пять градусов. Ветер слабый.»
 
 ### SSML
-С помощью SSML вы можете управлять паузами и просодией синтезированной речи.
-```text
+
+С помощью SSML можно управлять паузами и просодией речи. [🔊 Послушать][example-ssml]
+
+```xml
 <p>
   Когда я просыпаюсь, <prosody rate="x-slow">я говорю довольно медленно</prosody>.
   Потом я начинаю говорить своим обычным голосом,
@@ -211,157 +207,75 @@ Lorem ipsum dolor sit amet.
   </p>
 </p>
 ```
-[SSML Пример 1]
 
-<br/>
+<a id="api"></a>
+## API
 
-<a id="endpoints"></a>
-## Endpoints
-- `GET` `/clear_cache` - Очищает кэш уже синтезированных сообщений.
-- `GET` `/settings` - Возвращает текущие настройки сервера.
-- `GET` `/voices` - Возвращает список доступных голосов для выбранного языка.
-- `GET` `/process?VOICE=[Выбраный голос]&INPUT_TEXT=[Текст для обработки]` - Возвращает аудио файл синтезированной речи.
-- `POST` `/process` в теле запроса `VOICE=[Выбраный голос]`, `INPUT_TEXT=[Текст для обработки]` - Возвращает аудио файл синтезированной речи.
+| Метод | Путь | Описание |
+|---|---|---|
+| `GET` | `/process?VOICE=xenia&INPUT_TEXT=Привет` | Синтезирует речь и возвращает WAV файл |
+| `POST` | `/process` | То же самое, параметры `VOICE` и `INPUT_TEXT` в теле запроса (`application/x-www-form-urlencoded`) |
+| `GET` | `/voices` | Список голосов для текущего языка |
+| `GET` | `/settings` | Текущие настройки сервера |
+| `GET` | `/clear_cache` | Очищает кеш синтезированных фраз |
 
 Имена параметров не чувствительны к регистру, вместо `INPUT_TEXT` можно передать `text`. Если параметр не указан, сервер вернёт `400`.
 
-<br/>
-
-<a id="bluetooth-speaker"></a>
-## Вывод звука на Bluetooth колонку
-
-1) Если Home Assistant как основная ОС (HAOS), то читаем эту документацию [TTS Bluetooth Speaker for Home Assistant]
-2) Если Home Assistant стоит на Debian, то делаем следующее:
-
-Отредактируем client.conf
-
-```commandline
-nano /etc/pulse/client.conf
+```shell
+curl -o speech.wav "http://localhost:9898/process?voice=xenia&text=Привет, мир!"
 ```
 
-Добавим следующее:
+<a id="development"></a>
+## Разработка
 
-```commandline
-default-server = unix:/usr/share/hassio/audio/external/pulse.sock
-autospawn = no
+Для локального запуска нужны Python 3.14 и [SoX] в `PATH`:
+
+```shell
+python -m venv .venv
+.venv/bin/pip install -r requirements.txt   # Windows: .venv\Scripts\pip
+.venv/bin/python main.py                    # Windows: .venv\Scripts\python
 ```
 
-![ClientConf]
+Настройки для локального запуска удобно хранить в файле `.env` в корне проекта, имена переменных такие же, как в [таблице настроек](#settings).
 
-Перезапускаем pulseaudio.
+Для ручной проверки API есть коллекция Postman: [docs/postman/Silero-TTS-Service.postman_collection.json](docs/postman/Silero-TTS-Service.postman_collection.json). В ней запросы для русского и украинского языка, проверки ответов и примеры обработки текста.
 
-```commandline
-pulseaudio -k && pulseaudio --start
-```
+Релиз собирается GitHub Actions при пуше тега версии, например `3.0.0`: образы для `amd64` и `aarch64` публикуются в Docker Hub и GHCR, создаётся черновик релиза. Версия тега должна совпадать с `version` в `app/config.py` и `silero-tts/config.yaml`.
 
-Ставим аддон [Mopidy версии Current version: 2.1.1] и ставим только эту версию. Mopidy 2.2.0 не ставить - она сломанная. Подробнее про поломанную версию Mopidy 2.2.0 читать [здесь].
+## Благодарности
 
-Добавляем в configuration.yaml
-```yaml
-media_player:
-  - platform: mpd
-    name: "MPD Mopidy"
-    host: localhost
-    port: 6600
-```
+- [Silero] — за открытые модели синтеза речи.
+- [Gromina] — за проект [silero-ha-http-tts], с которого всё началось.
 
-Перезагружаем Home Assistant полностью, чтобы перезагрузился сам Debian.
-
-![RebootHa]
-
-Подключаем bluetooth колонку к Debian, kb,j через GUI, либо через консоль используя команду bluetoothctl
-
-Включим bluetooth:
-
-```commandline
-power on
-```
-
-Запуск сканирования девайсов:
-
-```commandline
-scan on
-```
-
-Как увидели свой девайс, спариваемся с устройством:
-
-```commandline
-pair [mac адрес девайса]
-```
-
-Подключаемся к устройству:
-
-```commandline
-connect [mac адрес девайса]
-```
-
-Добавляем устройство в доверенные:
-
-```commandline
-trust [mac адрес девайса]
-```
-
-Далее, как добавлен bluetooth девайс то в двух аддонов Rhasspy Assistant и Mopidy нужно указать источник вывода звука bluetooth девайса:
-
-1) В Rhasspy Assistant указываем так:
-
-![RhasspyAssistantConfig]
-
-2) В Mopidy указываем так:
-
-![MopidyConfig]
-
-
-Проверяем работоспособность:
-
-![TtsSay]
-
-Код: 
-
-```yaml
-service: tts.marytts_say
-data:
-  entity_id: media_player.mpd_mopidy
-  message: >-
-    Спустя 15 лет жизнь некогда бороздившего космические просторы Жана-Люка
-    Пикара
-```
-
-[aarch64-badge]: https://img.shields.io/badge/aarch64-no-red.svg?style=for-the-badge
-[amd64-badge]: https://img.shields.io/badge/amd64-yes-green.svg?style=for-the-badge
-[armhf-badge]: https://img.shields.io/badge/armhf-no-red.svg?style=for-the-badge
-[armv7-badge]: https://img.shields.io/badge/armv7-no-red.svg?style=for-the-badge
-[i386-badge]: https://img.shields.io/badge/i386-yes-green.svg?style=for-the-badge
-
+[release-shield]: https://img.shields.io/github/v/release/Navatusein/Silero-TTS-Service?style=for-the-badge
+[release-url]: https://github.com/Navatusein/Silero-TTS-Service/releases
+[pulls-shield]: https://img.shields.io/docker/pulls/navatusein/silero-tts-service?style=for-the-badge
+[dockerhub-url]: https://hub.docker.com/r/navatusein/silero-tts-service
+[ghcr-url]: https://github.com/Navatusein/Silero-TTS-Service/pkgs/container/silero-tts-service
+[amd64-shield]: https://img.shields.io/badge/amd64-yes-green.svg?style=for-the-badge
+[aarch64-shield]: https://img.shields.io/badge/aarch64-yes-green.svg?style=for-the-badge
 [license-shield]: https://img.shields.io/github/license/Navatusein/Silero-TTS-Service.svg?style=for-the-badge
-[license-url]: https://github.com/Navatusein/Silero-TTS-Service/blob/Main/LICENSE
+[license-url]: https://github.com/Navatusein/Silero-TTS-Service/blob/main/LICENSE
+
+[ha-addon-shield]: https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg
+[ha-addon-url]: https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FNavatusein%2FSilero-TTS-Service
 
 [Silero]: https://github.com/snakers4/silero-models
-
 [silero-ha-http-tts]: https://github.com/Gromina/silero-ha-http-tts
 [Gromina]: https://github.com/Gromina
+[SoX]: https://linux.die.net/man/1/sox
 
-[RhasspyConfig]: /docs/RhasspyConfig.png
+[RhasspyConfig]: docs/images/RhasspyConfig.png
 
-[Нормализация Пример 1]: https://on.soundcloud.com/WsG6i
-
-[Склонение Пример 1]: https://on.soundcloud.com/x7RDs
-[Склонение Пример 2]: https://on.soundcloud.com/q6Bge
-
-[Транслит Пример 1]: https://on.soundcloud.com/Mfgqv
-
-[SSML Пример 1]: https://on.soundcloud.com/kk9CY
-
-[TTS Bluetooth Speaker for Home Assistant]: https://github.com/pkozul/ha-tts-bluetooth-speaker
-
-[ClientConf]: /docs/ClientConf.png
-
-[Mopidy версии Current version: 2.1.1]: https://github.com/Llntrvr/Hassio-Addons
-
-[здесь]: https://github.com/Poeschl/Hassio-Addons/issues/334
-
-[RebootHa]: /docs/RebootHa.png
-
-[RhasspyAssistantConfig]: /docs/RhasspyAssistantConfig.png
-[MopidyConfig]: /docs/MopidyConfig.png
-[TtsSay]: /docs/TtsSay.png
+[voice-aidar]: docs/audio/voice-aidar.mp3
+[voice-baya]: docs/audio/voice-baya.mp3
+[voice-kseniya]: docs/audio/voice-kseniya.mp3
+[voice-xenia]: docs/audio/voice-xenia.mp3
+[voice-eugene]: docs/audio/voice-eugene.mp3
+[voice-mykyta]: docs/audio/voice-mykyta.mp3
+[example-numbers]: docs/audio/numbers.mp3
+[example-declension]: docs/audio/declension.mp3
+[example-numbers-uk]: docs/audio/numbers-uk.mp3
+[example-translit]: docs/audio/translit.mp3
+[example-markdown]: docs/audio/markdown.mp3
+[example-ssml]: docs/audio/ssml.mp3

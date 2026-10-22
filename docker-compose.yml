@@ -1,17 +1,17 @@
-version: '3'
-
 services:
   silero-tts-service:
-    image: "navatusein/silero-tts-service"
-    container_name: "silero-tts_service-service"
+    image: navatusein/silero-tts-service
+    container_name: silero-tts-service
+    restart: unless-stopped
+    ports:
+      - "9898:9898"
+    volumes:
+      - ./models:/usr/app/models
+    environment:
+      LANGUAGE: ru
+      NUMBER_OF_THREADS: 4
+      SAMPLE_RATE: 48000
     deploy:
       resources:
         limits:
           memory: 1G
-    ports:
-      - "9898:9898"
-    restart: unless-stopped
-    environment:
-      NUMBER_OF_THREADS: 4
-      LANGUAGE: ru
-      SAMPLE_RATE: 48000
