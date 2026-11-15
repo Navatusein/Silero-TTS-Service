@@ -10,6 +10,10 @@ models_directory = os.path.join(os.environ.get('MODELS_DIRECTORY', './models'), 
 # Home Assistant add-on options, the file exists only when running as an add-on
 addon_options_file = '/data/options.json'
 audios_directory = './audios/'
+# CMU pronouncing dictionary for English words, pinned to a commit so the file never changes unexpectedly
+english_dictionary_link = ('https://raw.githubusercontent.com/cmusphinx/cmudict/'
+                           '74790861f652b15e4ac49015a90074ad62a27690/cmudict.dict')
+english_dictionary_file = models_directory + 'cmudict.dict'
 version = '3.0.1'
 
 
@@ -85,6 +89,10 @@ def settings_checker():
         url = settings.silero_settings[settings.language]['model_link']
         logger.info(f'Download silero model {local_file}')
         torch.hub.download_url_to_file(url, local_file)
+
+    if not os.path.exists(english_dictionary_file):
+        logger.info(f'Download english dictionary {english_dictionary_file}')
+        torch.hub.download_url_to_file(english_dictionary_link, english_dictionary_file)
 
     logger.info(f'Current version: {version}')
     logger.info(f'Settings: {json.dumps(settings_dict)}')

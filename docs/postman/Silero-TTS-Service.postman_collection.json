@@ -311,6 +311,58 @@
           }
         },
         {
+          "name": "Dates and time",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "VOICE",
+                  "value": "{{voiceRu}}"
+                },
+                {
+                  "key": "INPUT_TEXT",
+                  "value": "Сегодня 15.11.2026, встреча 1 января в 14:30, работаем с 9:00 до 18:00. В 2027 году."
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/process"
+          }
+        },
+        {
+          "name": "English words",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "VOICE",
+                  "value": "{{voiceRu}}"
+                },
+                {
+                  "key": "INPUT_TEXT",
+                  "value": "Включи Spotify на Google Home и подключи iPhone к Wi-Fi через USB."
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/process"
+          }
+        },
+        {
           "name": "Error: GET without INPUT_TEXT",
           "request": {
             "method": "GET",
@@ -542,6 +594,58 @@
                 {
                   "key": "INPUT_TEXT",
                   "value": "У мене 21 <d>гривня</d>, 2 <d>червоний</d> <d>яблуко</d>, 3 <d>книга</d> і 5 <d>груша</d>."
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/process"
+          }
+        },
+        {
+          "name": "Dates and time",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "VOICE",
+                  "value": "{{voiceUk}}"
+                },
+                {
+                  "key": "INPUT_TEXT",
+                  "value": "Сьогодні 15.11.2026, зустріч 1 січня о 14:30, працюємо з 9:00 до 18:00. У 2027 році."
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/process"
+          }
+        },
+        {
+          "name": "English words",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "VOICE",
+                  "value": "{{voiceUk}}"
+                },
+                {
+                  "key": "INPUT_TEXT",
+                  "value": "Увімкни Spotify на Google Home і підключи iPhone до Wi-Fi через USB."
                 }
               ]
             },
