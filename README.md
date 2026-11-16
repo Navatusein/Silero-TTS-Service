@@ -243,7 +243,19 @@ https://github.com/user-attachments/assets/b266412d-47f8-40fc-9ca1-d45cf0db670c
 Сегодня 15.11.2026. Встреча 1 января в 14:30, работаем с 9:00 до 18:00.
 ```
 
-🔊 Послушать: [русский](docs/audio/dates.mp3), [украинский](docs/audio/dates-uk.mp3)
+https://github.com/user-attachments/assets/3f6806e3-5a49-4547-94c8-e93e27203afd
+
+<sub>🔈 GitHub запускает видео без звука, включите его кнопкой динамика в плеере.</sub>
+
+Для украинского языка часы читаются порядковыми числительными.
+
+```text
+Сьогодні 15.11.2026. Зустріч 1 січня о 14:30, працюємо з 9:00 до 18:00.
+```
+
+https://github.com/user-attachments/assets/c5ff64e3-9f27-4989-bdc5-5362efb2fada
+
+<sub>🔈 GitHub запускает видео без звука, включите его кнопкой динамика в плеере.</sub>
 
 Поддерживаются форматы `15.11.2026`, `15/11/2026`, `2026-11-15`, `2026-11-15T14:30:00`, `15 ноября 2026 года`, `14:30` и `14:30:15`. Два числа через точку, например `15.11`, остаются дробью, а `2:1` и `16:9` не считаются временем, потому что минуты записываются двумя цифрами.
 
@@ -262,7 +274,19 @@ https://github.com/user-attachments/assets/b266412d-47f8-40fc-9ca1-d45cf0db670c
 Включи Spotify на Google Home и подключи iPhone к Wi-Fi через USB.
 ```
 
-🔊 Послушать: [русский](docs/audio/english.mp3), [украинский](docs/audio/english-uk.mp3)
+https://github.com/user-attachments/assets/dd46afe2-f1b8-49f5-86e7-04b50685e849
+
+<sub>🔈 GitHub запускает видео без звука, включите его кнопкой динамика в плеере.</sub>
+
+Для украинского языка так же.
+
+```text
+Увімкни Spotify на Google Home і підключи iPhone до Wi-Fi через USB.
+```
+
+https://github.com/user-attachments/assets/b7c1bcdc-ff09-478c-8aa4-172816d4c539
+
+<sub>🔈 GitHub запускает видео без звука, включите его кнопкой динамика в плеере.</sub>
 
 Словарь скачивается при первом запуске в папку моделей, это около 4 МБ.
 
@@ -339,6 +363,8 @@ python -m venv .venv
 Настройки для локального запуска удобно хранить в файле `.env` в корне проекта, имена переменных такие же, как в [таблице настроек](#settings).
 
 Для ручной проверки API есть коллекция Postman: [docs/postman/Silero-TTS-Service.postman_collection.json](docs/postman/Silero-TTS-Service.postman_collection.json). В ней запросы для русского и украинского языка, проверки ответов и примеры обработки текста.
+
+Аудиопримеры и видео плееры для README собираются скриптом, инструкция в [docs/audio/README.md](docs/audio/README.md).
 
 Релиз собирается GitHub Actions при пуше тега версии, например `3.0.0`: образы для `amd64` и `aarch64` публикуются в Docker Hub и GHCR, создаётся черновик релиза. Версия тега должна совпадать с `version` в `app/config.py` и `silero-tts/config.yaml`. Описание образа на Docker Hub берётся из [docs/dockerhub/README.md](docs/dockerhub/README.md) и обновляется при каждом релизе.
 

@@ -137,3 +137,5 @@ audios/
 
 #PyCharmFiles
 /.idea
+# Videos for README players, uploaded to GitHub as attachments
+docs/audio/video/
