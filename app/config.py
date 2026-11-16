@@ -14,7 +14,7 @@ audios_directory = './audios/'
 english_dictionary_link = ('https://raw.githubusercontent.com/cmusphinx/cmudict/'
                            '74790861f652b15e4ac49015a90074ad62a27690/cmudict.dict')
 english_dictionary_file = models_directory + 'cmudict.dict'
-version = '3.0.1'
+version = '3.1.0'
 
 
 class Settings(BaseSettings):
