@@ -1,0 +1,65 @@
+[
+  {
+    "name": "numbers",
+    "title": "Числа и дроби",
+    "language": "ru",
+    "voice": "xenia",
+    "text": "Текст с цифрой 1. На улице 23,5 градуса, а влажность 64.8 процента."
+  },
+  {
+    "name": "declension",
+    "title": "Склонение по числу",
+    "language": "ru",
+    "voice": "xenia",
+    "text": "У меня было 15 <d>яблоко</d>. Мне осталось работать 21 <d>рабочий</d> <d>день</d>."
+  },
+  {
+    "name": "numbers-uk",
+    "title": "Числа та відмінювання",
+    "language": "uk",
+    "voice": "mykyta",
+    "text": "На вулиці 23,5 градуса. У мене 21 <d>гривня</d>, 2 <d>нова</d> <d>книга</d> і 5 <d>яблуко</d>."
+  },
+  {
+    "name": "dates",
+    "title": "Даты и время",
+    "language": "ru",
+    "voice": "xenia",
+    "text": "Сегодня 15.11.2026. Встреча 1 января в 14:30, работаем с 9:00 до 18:00."
+  },
+  {
+    "name": "dates-uk",
+    "title": "Дати та час",
+    "language": "uk",
+    "voice": "mykyta",
+    "text": "Сьогодні 15.11.2026. Зустріч 1 січня о 14:30, працюємо з 9:00 до 18:00."
+  },
+  {
+    "name": "english",
+    "title": "Английские слова",
+    "language": "ru",
+    "voice": "xenia",
+    "text": "Включи Spotify на Google Home и подключи iPhone к Wi-Fi через USB."
+  },
+  {
+    "name": "english-uk",
+    "title": "Англійські слова",
+    "language": "uk",
+    "voice": "mykyta",
+    "text": "Увімкни Spotify на Google Home і підключи iPhone до Wi-Fi через USB."
+  },
+  {
+    "name": "markdown",
+    "title": "Эмодзи и Markdown",
+    "language": "ru",
+    "voice": "xenia",
+    "text": "# Погода ☀️\n- Сегодня **тепло**, плюс 25 <d>градус</d>\n- Ветер [слабый](https://example.com) 🌬️"
+  },
+  {
+    "name": "ssml",
+    "title": "SSML",
+    "language": "ru",
+    "voice": "xenia",
+    "text": "<p>\n  Когда я просыпаюсь, <prosody rate=\"x-slow\">я говорю довольно медленно</prosody>.\n  Потом я начинаю говорить своим обычным голосом,\n  <prosody pitch=\"x-high\"> а могу говорить тоном выше </prosody>,\n  или <prosody pitch=\"x-low\">наоборот, ниже</prosody>.\n  Потом, если повезет – <prosody rate=\"fast\">я могу говорить и довольно быстро.</prosody>\n  А еще я умею делать паузы любой длины, например две секунды <break time=\"2000ms\"/>.\n  <p>\n    Также я умею делать паузы между параграфами.\n  </p>\n  <p>\n    <s>И также я умею делать паузы между предложениями</s>\n    <s>Вот например как сейчас</s>\n  </p>\n</p>"
+  }
+]
