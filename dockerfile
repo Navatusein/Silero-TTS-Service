@@ -16,6 +16,7 @@ RUN pip3 install -r requirements_docker.txt
 ADD ./ ./
 
 EXPOSE 9898
+EXPOSE 10200
 
 # The model is downloaded on the first start, so the start period is long
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10m --retries=3 \

@@ -2,15 +2,16 @@
 
 **Локальный синтез русской и украинской речи для Home Assistant и Rhasspy.**
 
-Offline Russian and Ukrainian text-to-speech based on [Silero](https://github.com/snakers4/silero-models) models with a MaryTTS compatible HTTP API.
+Offline Russian and Ukrainian text-to-speech based on [Silero](https://github.com/snakers4/silero-models) models with a MaryTTS compatible HTTP API and Wyoming Protocol support.
 
-Сервис превращает текст в естественную речь и отдаёт WAV по HTTP API, совместимому с MaryTTS. Работает полностью локально, интернет нужен только для скачивания модели при первом запуске.
+Сервис превращает текст в естественную речь и отдаёт WAV по HTTP API, совместимому с MaryTTS, либо по Wyoming Protocol. Работает полностью локально, интернет нужен только для скачивания модели при первом запуске.
 
 - 🗣️ 5 русских голосов и украинский голос на моделях Silero `v5_1` и `v4`
 - 🔢 Числа и дроби словами, склонение слов после числа
 - 🤖 Удаление эмодзи и Markdown: можно озвучивать ответы LLM ассистентов
 - 🎛️ SSML, эффекты SoX, кеширование фраз
 - 🏠 Работает с интеграцией MaryTTS в Home Assistant и с Rhasspy, есть [аддон Home Assistant](https://github.com/Navatusein/Silero-TTS-Service#install)
+- 🎙️ Поддерживает Wyoming Protocol для нативной интеграции с Home Assistant Assist
 
 🔊 [Послушать примеры голосов и обработки текста](https://github.com/Navatusein/Silero-TTS-Service#features)
 

@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     sox_param: str = ''
     ha_fix: bool = False
     voice_tts_errors: bool = False
+    wyoming_enabled: bool = False
+    wyoming_port: int = 10200
 
     silero_settings: dict = {
         'ru': {

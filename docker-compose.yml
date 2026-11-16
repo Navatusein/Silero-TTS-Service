@@ -5,12 +5,15 @@ services:
     restart: unless-stopped
     ports:
       - "9898:9898"
+      # - "10200:10200"  # Wyoming protocol, needs WYOMING_ENABLED: true
     volumes:
       - ./models:/usr/app/models
     environment:
       LANGUAGE: ru
       NUMBER_OF_THREADS: 4
       SAMPLE_RATE: 48000
+      # WYOMING_ENABLED: true
+      # WYOMING_PORT: 10200
     deploy:
       resources:
         limits:
