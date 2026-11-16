@@ -10,8 +10,10 @@ arch:
 startup: services
 ports:
   9898/tcp: 9898
+  10200/tcp: 10200
 ports_description:
   9898/tcp: MaryTTS compatible HTTP API
+  10200/tcp: Wyoming protocol TTS
 environment:
   MODELS_DIRECTORY: /data/models
 options:
@@ -20,6 +22,7 @@ options:
   sample_rate: 48000
   ha_fix: false
   voice_tts_errors: false
+  wyoming_enabled: false
 schema:
   language: list(ru|uk|multi)
   number_of_threads: int(1,)
@@ -27,3 +30,4 @@ schema:
   sox_param: str?
   ha_fix: bool
   voice_tts_errors: bool
+  wyoming_enabled: bool
